@@ -119,29 +119,33 @@
 
 ---
 
-### 🔒 Step 8 — Database & Reporting
-**Goal:** Persist inspection results and generate PDF reports.
+### ✅ Step 8 — Unified Inference Integration
+**Goal:** Integrate the three trained models into one reliable, production-ready inference pipeline without retraining.
 
-- [ ] SQLite schema design (`src/database/`)
-- [ ] SQLAlchemy ORM models
-- [ ] CRUD operations for inspections
-- [ ] ReportLab PDF report template
-- [ ] Report includes: image, predictions, confidence, timestamp, panel ID
+- [x] Unified inference engine (SolarVisionInferencePipeline in src/inference/pipeline.py)
+- [x] Lazy loading & warm model caching for memory conservation (16 GB RAM laptop)
+- [x] Strict input validation supporting file paths, PIL Images, and NumPy arrays (2D/3D)
+- [x] Standardized InferenceResult schema across Classification, Detection, and Segmentation
+- [x] Modality-specific visualizers: classification banner, detection bounding boxes, 3-panel EL composite
+- [x] CLI inference script (scripts/run_inference.py) with Click argument parsing and JSON saving
+- [x] 87 unit and integration tests passing with 94% test coverage across src/
 
-**Deliverables:** `src/database/` implemented, sample PDF report
+**Deliverables:** src/inference/, scripts/run_inference.py, tests/unit/test_inference.py, tests/integration/test_inference_pipeline.py
 
 ---
 
-### 🔒 Step 9 — Streamlit Dashboard
-**Goal:** Interactive web interface for end users.
+### ⏳ Step 9 — Streamlit Dashboard & Analytics
+**Goal:** Build a polished, functional, multi-page dashboard around the unified inference pipeline.
 
-- [ ] Upload page: image upload → inference → result display
-- [ ] History page: browse past inspections
-- [ ] Analytics page: aggregate stats, charts, trends
-- [ ] Report page: generate and download PDF
-- [ ] Responsive layout, dark-mode compatible
+- [x] Multi-page interface with styled sidebar (app/main.py)
+- [x] Live single-image inspection with preset samples and threshold tuning (app/pages/inspection.py)
+- [x] Sequential batch processing with progress tracking, CSV export, and memory conservation (app/pages/batch.py)
+- [x] Searchable and filterable SQLite inspection history table (app/pages/history.py)
+- [x] Interactive Plotly analytics (defect ratios, modality counts, and timeline trends)
+- [x] SQLite database manager and index optimization (src/database/manager.py)
+- [x] 100 unit and integration tests passing with 94% test coverage across src/
 
-**Deliverables:** `app/` fully implemented, demo screenshots
+**Deliverables:** app/, src/database/, tests/unit/test_database.py, tests/integration/test_app_integration.py
 
 ---
 

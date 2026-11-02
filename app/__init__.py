@@ -1,1 +1,1 @@
-﻿"""SolarVision AI package."""
+"""SolarVision AI package."""
