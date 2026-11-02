@@ -1,0 +1,82 @@
+# ============================================================
+# SolarVision AI — .gitignore
+# ============================================================
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyo
+
+# ── Virtual Environment ──────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Jupyter Notebooks ────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── PyTorch / Model Checkpoints ──────────────────────────────
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.pkl
+
+# ── Data (raw data should not be committed) ──────────────────
+data/raw/
+data/processed/
+data/augmented/
+data/external/
+*.csv
+*.json
+*.xml
+*.parquet
+
+# ── Logs ─────────────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+
+# ── Reports / Outputs ────────────────────────────────────────
+reports/figures/
+reports/pdf/
+
+# ── Database ─────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Environment Variables ────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# ── Testing ──────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Type Checking ────────────────────────────────────────────
+.mypy_cache/
+
+# ── OS ───────────────────────────────────────────────────────
+*.swp
+*~

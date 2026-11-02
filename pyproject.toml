@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "solarvision-ai"
+version = "0.1.0"
+description = "Automated Solar Panel Dust and Micro-Crack Defect Inspection from Drone Images"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = [
+    "solar panel",
+    "defect detection",
+    "computer vision",
+    "deep learning",
+    "drone imagery",
+    "PyTorch",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.9.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "mypy>=1.5.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "app*"]
+
+# ── Black ────────────────────────────────────────────────────
+[tool.black]
+line-length = 88
+target-version = ["py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+  | checkpoints
+  | data
+)/
+'''
+
+# ── isort ─────────────────────────────────────────────────────
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_glob = [".venv/*", "data/*", "checkpoints/*"]
+
+# ── pytest ────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --cov=src --cov-report=term-missing"
+
+# ── mypy ─────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
+exclude = [".venv", "data", "checkpoints", "build"]

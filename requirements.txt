@@ -1,0 +1,66 @@
+# ============================================================
+# SolarVision AI — Requirements
+# Project: Automated Solar Panel Dust & Micro-Crack Inspection
+# Python: 3.11+ (currently using 3.12)
+# ============================================================
+
+# ── Core Scientific Stack ────────────────────────────────────
+numpy>=1.26.0
+pandas>=2.1.0
+scipy>=1.11.0
+
+# ── Computer Vision ──────────────────────────────────────────
+opencv-python>=4.8.0
+Pillow>=10.0.0
+
+# ── Deep Learning ────────────────────────────────────────────
+# NOTE: PyTorch CPU-only build (safe default for systems without CUDA/NVIDIA GPU).
+# To install, run the recommended command in docs/development_plan.md.
+# Do NOT install torch via plain `pip install torch` — use the wheel URL below.
+#
+# CPU-only (all platforms, recommended for this machine):
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+#
+# Uncomment below only after running the above install command:
+# torch>=2.1.0
+# torchvision>=0.16.0
+# torchaudio>=2.1.0
+
+# ── Machine Learning ─────────────────────────────────────────
+scikit-learn>=1.3.0
+scikit-image>=0.21.0
+
+# ── Dashboard / UI ───────────────────────────────────────────
+streamlit>=1.28.0
+plotly>=5.17.0
+altair>=5.1.0
+
+# ── Reporting ────────────────────────────────────────────────
+reportlab>=4.0.0
+fpdf2>=2.7.0
+
+# ── Database ─────────────────────────────────────────────────
+# SQLite is built into Python — no additional package needed.
+# SQLAlchemy is used as a thin ORM/query layer on top of SQLite.
+SQLAlchemy>=2.0.0
+
+# ── Configuration Management ─────────────────────────────────
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# ── Utilities ────────────────────────────────────────────────
+tqdm>=4.66.0
+loguru>=0.7.0
+click>=8.1.0
+rich>=13.5.0
+
+# ── Testing ──────────────────────────────────────────────────
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+
+# ── Code Quality ─────────────────────────────────────────────
+black>=23.9.0
+isort>=5.12.0
+flake8>=6.1.0
+mypy>=1.5.0
