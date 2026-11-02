@@ -25,11 +25,15 @@ ENV/
 *.ipynb_checkpoints
 
 # ── PyTorch / Model Checkpoints ──────────────────────────────
-checkpoints/
 *.pt
 *.pth
 *.onnx
 *.pkl
+
+# Explicitly allow verified production model checkpoints
+!checkpoints/classification/mobilenet_v2_best.pt
+!checkpoints/detection/yolov8n_best.pt
+!checkpoints/segmentation/unet_best.pt
 
 # ── Data (raw data should not be committed) ──────────────────
 data/raw/
@@ -40,6 +44,10 @@ data/external/
 *.json
 *.xml
 *.parquet
+*.zip
+*.tar
+*.tar.gz
+*.tgz
 
 # ── Logs ─────────────────────────────────────────────────────
 logs/

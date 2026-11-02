@@ -24,7 +24,7 @@ SAMPLE_IMAGES = {
         "data/raw/classification/Clean/Clean (10).JPG"
     ),
     "[Classification] Physical Damage Panel": Path(
-        "data/raw/classification/Physical-Damage/Physical-Damage (10).jpg"
+        "data/raw/classification/Physical-Damage/Physical (10).jpg"
     ),
     "[Classification] Bird-drop Soiled Panel": Path(
         "data/raw/classification/Bird-drop/10.JPG"
@@ -116,7 +116,10 @@ def render_inspection_page(
             image_filename = sample_path.name
             image_file_path = str(sample_path)
         else:
-            st.warning(f"Sample file not found on disk: {sample_path}")
+            st.info(
+                f"ℹ️ Demo preset '{preset_choice}' is not available in this cloud deployment. "
+                "Please upload your own panel image below to test real-time inference."
+            )
 
     if image_to_process is None:
         st.info("👆 Please upload an image or select a sample image above to proceed.")
