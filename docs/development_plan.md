@@ -103,15 +103,19 @@
 
 ---
 
-### 🔒 Step 7 — Inference Pipeline
-**Goal:** Reliable, fast inference on new images.
+### ✅ Step 7 — Segmentation Module
+**Goal:** Train and evaluate SolarLightweightUNet on MSPS electroluminescence defect segmentation dataset.
 
-- [ ] Single image inference (`src/inference/predictor.py`)
-- [ ] Batch inference pipeline
-- [ ] Result postprocessing (NMS, threshold tuning)
-- [ ] ONNX export for deployment optimization (optional)
+- [x] Input: Single-channel grayscale EL crops ($256\times256$); Target: Binary defect masks
+- [x] Combined `BCEDiceLoss` with positive weighting (pos_weight=15.0) and soft Dice
+- [x] Dedicated CPU segmentation trainer (`SegmentationTrainer` in `src/training/segmentation_trainer.py`)
+- [x] Validation threshold optimization search across candidate thresholds [0.20, 0.30, 0.40, 0.50, 0.60, 0.70]
+- [x] Optimal threshold selected at 0.70 (Validation Global Dice: 71.41%)
+- [x] Official 503-image test split evaluated: 73.54% Global Dice, 58.16% Global IoU, 99.97% Pixel Accuracy
+- [x] Qualitative multi-panel error overlays (EL image, GT mask, prediction, hit/miss/false-alarm overlay)
+- [x] 67 unit tests passing with 93% coverage across `src/`
 
-**Deliverables:** `src/inference/` implemented, inference benchmarks
+**Deliverables:** `src/training/segmentation_trainer.py`, `src/evaluation/segmentation_metrics.py`, `scripts/train_segmentation.py`, `checkpoints/segmentation/unet_best.pt`, `reports/segmentation/`
 
 ---
 

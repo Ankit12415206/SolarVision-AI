@@ -153,6 +153,50 @@ def plot_training_history(
         fig.update_xaxes(title_text="Epoch", row=1, col=2)
         fig.update_yaxes(title_text="Total Loss", row=1, col=1)
         fig.update_yaxes(title_text="Loss", row=1, col=2)
+    elif "val_dice" in history:
+        fig = make_subplots(
+            rows=1,
+            cols=2,
+            subplot_titles=("BCE + Dice Loss", "Validation Dice Score (%)"),
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=epochs,
+                y=history["train_loss"],
+                mode="lines+markers",
+                name="Train Loss",
+                line=dict(color="#1f77b4"),
+            ),
+            row=1,
+            col=1,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=epochs,
+                y=history["val_loss"],
+                mode="lines+markers",
+                name="Val Loss",
+                line=dict(color="#ff7f0e"),
+            ),
+            row=1,
+            col=1,
+        )
+        val_dice_pct = [d * 100.0 for d in history["val_dice"]]
+        fig.add_trace(
+            go.Scatter(
+                x=epochs,
+                y=val_dice_pct,
+                mode="lines+markers",
+                name="Val Dice (%)",
+                line=dict(color="#2ca02c"),
+            ),
+            row=1,
+            col=2,
+        )
+        fig.update_xaxes(title_text="Epoch", row=1, col=1)
+        fig.update_xaxes(title_text="Epoch", row=1, col=2)
+        fig.update_yaxes(title_text="Loss", row=1, col=1)
+        fig.update_yaxes(title_text="Dice Score (%)", row=1, col=2)
     else:
         fig = make_subplots(
             rows=1,
