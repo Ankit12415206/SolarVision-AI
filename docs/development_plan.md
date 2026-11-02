@@ -60,16 +60,17 @@
 
 ---
 
-### 🔒 Step 4 — Model Architecture Design
+### ✅ Step 4 — Model Architecture Design
 **Goal:** Define and implement model architectures for all three tasks.
 
-- [ ] Classification model (EfficientNet-B0 fine-tuned)
-- [ ] Detection model (YOLOv8-nano or Faster R-CNN + MobileNet)
-- [ ] Segmentation model (U-Net with lightweight encoder)
-- [ ] Model factory / registry pattern
-- [ ] Config-driven architecture selection
+- [x] Classification models: Small Custom CNN baseline (~422k params) & MobileNetV2 (~2.23M params, frozen/unfrozen)
+- [x] Detection model: Lightweight anchor-free SolarYOLOv8n detector (~896k params) with decoupled heads
+- [x] Segmentation model: Lightweight U-Net (~1.52M params) for grayscale EL input and binary defect masks
+- [x] Numerically stable BCEDiceLoss with positive weight capping for extreme class imbalance
+- [x] Shared model utilities: checkpoint save/load, CPU fallback, parameter counters, summaries (`src/utils/model_utils.py`)
+- [x] 45 unit tests passing with 95% total code coverage (`tests/unit/`)
 
-**Deliverables:** `src/models/` implemented, architecture diagrams
+**Deliverables:** `src/models/`, `src/utils/model_utils.py`, `configs/default.yaml`, unit test suite.
 
 ---
 

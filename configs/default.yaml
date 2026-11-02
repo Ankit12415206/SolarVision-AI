@@ -50,9 +50,19 @@ normalization:
 
 # ── Classification ─────────────────────────────────────────
 classification:
-  backbone: "efficientnet_b0"
+  model_name: "custom_cnn"  # "custom_cnn" | "mobilenet_v2"
+  num_classes: 6
+  classes:
+    - "Bird-drop"
+    - "Clean"
+    - "Dusty"
+    - "Electrical-damage"
+    - "Physical-Damage"
+    - "Snow-Covered"
+  image_size: 224
   pretrained: true
   freeze_backbone: false
+  unfreeze_blocks: 0
   dropout: 0.3
   learning_rate: 0.001
   weight_decay: 0.0001
@@ -62,7 +72,12 @@ classification:
 
 # ── Detection ───────────────────────────────────────────────
 detection:
-  architecture: "yolov8n"  # YOLOv8 nano (smallest)
+  architecture: "yolov8n"  # Lightweight anchor-free detector
+  num_classes: 2
+  classes:
+    - "Dust"
+    - "bird-droppings"
+  image_size: 640
   confidence_threshold: 0.25
   iou_threshold: 0.45
   learning_rate: 0.01
@@ -71,11 +86,14 @@ detection:
 # ── Segmentation ────────────────────────────────────────────
 segmentation:
   architecture: "unet"
-  encoder: "mobilenet_v2"
-  encoder_weights: "imagenet"
+  in_channels: 1
+  out_channels: 1
+  base_channels: 16
+  image_size: 256
   learning_rate: 0.001
   epochs: 40
-  loss: "dice_bce"  # Dice + Binary Cross-Entropy
+  loss: "bce_dice"  # BCEWithLogits + Soft Dice
+  pos_weight: 15.0  # Moderated from extreme 1939.69 for numerical stability
 
 # ── Database ────────────────────────────────────────────────
 database:

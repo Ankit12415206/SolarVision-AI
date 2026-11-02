@@ -61,19 +61,23 @@ SolarVision AI is a **multi-task deep learning inspection system** that processe
 ### 2.2 `src/models/`
 
 #### `classification/`
-- **Task:** Predict defect class (dust / micro-crack / clean)
-- **Architecture:** Pretrained CNN backbone (ResNet-50 or EfficientNet-B0) with fine-tuned head
-- **Output:** Softmax probabilities per class
+- **Task:** 6-class solar panel surface defect classification (`Bird-drop`, `Clean`, `Dusty`, `Electrical-damage`, `Physical-Damage`, `Snow-Covered`)
+- **Architectures Implemented:**
+  - `SolarCustomCNN`: 4-stage convolutional baseline with BatchNorm, ReLU, and Dropout (~422k parameters). Fast CPU inference baseline.
+  - `SolarMobileNetV2`: Transfer learning backbone with pre-trained ImageNet weights (~2.23M parameters). Supports frozen linear probe (7.6k trainable), partially unfrozen (fine-tuning N inverted residual blocks), and fully unfrozen modes.
+- **Output:** Raw logits for 6 categories (evaluated with CrossEntropyLoss).
 
 #### `detection/`
-- **Task:** Locate defects with bounding boxes
-- **Architecture:** YOLOv8-nano (CPU-friendly) or Faster R-CNN with MobileNet backbone
-- **Output:** Bounding boxes + confidence scores + class labels
+- **Task:** Locate soiling and bird droppings with normalized bounding boxes (`[cx, cy, w, h]`)
+- **Architecture Implemented:**
+  - `SolarYOLOv8n`: Anchor-free lightweight detector with C2f cross-stage partial blocks and decoupled multi-scale detection heads at strides P3 (8x), P4 (16x), and P5 (32x) (~896k parameters).
+- **Output:** Multi-scale bounding box coordinates + objectness + class scores (2 classes: `Dust`, `bird-droppings`).
 
 #### `segmentation/`
-- **Task:** Pixel-wise defect mapping
-- **Architecture:** U-Net with lightweight encoder (MobileNetV2 or ResNet-18)
-- **Output:** Binary/multi-class segmentation mask
+- **Task:** Pixel-level binary segmentation of structural and micro-cracks in electroluminescence (EL) cells
+- **Architecture Implemented:**
+  - `SolarLightweightUNet`: Double-convolution encoder-decoder with skip connections and bilinear upsampling (~1.52M parameters). Input: 1-channel grayscale EL; Output: 1-channel raw binary logits.
+- **Loss Function:** `BCEDiceLoss` combining weighted `BCEWithLogitsLoss` and soft `DiceLoss`. Features positive weight moderation (capping extreme raw imbalance to prevent gradient explosions) and Laplace smoothing.
 
 ### 2.3 `src/training/`
 | File (planned)        | Responsibility                                      |
