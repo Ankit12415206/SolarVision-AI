@@ -13,7 +13,7 @@
 | **Name**     | SolarVision AI                                                  |
 | **Purpose**  | Automated defect inspection of solar panels from drone imagery  |
 | **Stack**    | Python 3.11+, PyTorch, OpenCV, Streamlit, SQLite, Plotly        |
-| **Stage**    | Step 1 — Project Setup Complete                                  |
+| **Stage**    | Step 6 — Object Detection Module Complete                        |
 
 ---
 
@@ -28,8 +28,8 @@ user approval of the previous step's completion report.**
 | 2    | Dataset Research & Acquisition| ✅ Complete      |
 | 3    | Data Preprocessing Pipeline   | ✅ Complete      |
 | 4    | Model Architecture Design     | ✅ Complete      |
-| 5    | Classification Module         | ⏳ Awaiting approval |
-| 6    | Object Detection Module       | 🔒 Locked        |
+| 5    | Classification Module         | ✅ Complete      |
+| 6    | Object Detection Module       | ⏳ Awaiting approval |
 | 7    | Segmentation Module           | 🔒 Locked        |
 | 8    | Training & Evaluation         | 🔒 Locked        |
 | 9    | Streamlit Dashboard           | 🔒 Locked        |

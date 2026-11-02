@@ -5,6 +5,7 @@ Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
+from src.evaluation.detection_metrics import evaluate_detection
 from src.evaluation.metrics import evaluate_classification
 from src.evaluation.visualizer import (
     generate_classification_report_markdown,
@@ -14,6 +15,7 @@ from src.evaluation.visualizer import (
 
 __all__ = [
     "evaluate_classification",
+    "evaluate_detection",
     "plot_training_history",
     "plot_confusion_matrix",
     "generate_classification_report_markdown",

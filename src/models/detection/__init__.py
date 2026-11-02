@@ -1,14 +1,20 @@
 """
 Module: detection
-Description: Object detection model architectures and factory constructors
+Description: Object detection model architectures, losses, and postprocessing
 Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import torch.nn as nn
 
+from src.models.detection.loss import SolarDetectionLoss
+from src.models.detection.postprocess import (
+    class_aware_nms,
+    decode_predictions,
+    postprocess_detections,
+)
 from src.models.detection.yolo_lightweight import SolarYOLOv8n
 
 
@@ -40,5 +46,9 @@ def build_detection_model(
 
 __all__ = [
     "SolarYOLOv8n",
+    "SolarDetectionLoss",
+    "decode_predictions",
+    "class_aware_nms",
+    "postprocess_detections",
     "build_detection_model",
 ]
