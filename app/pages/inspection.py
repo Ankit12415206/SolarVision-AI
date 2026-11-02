@@ -15,6 +15,7 @@ from PIL import Image
 from app.components.charts import plot_class_probabilities
 from src.database.manager import InspectionDatabaseManager
 from src.inference import InspectionType, SolarVisionInferencePipeline
+from src.utils.report_generator import generate_inspection_pdf_bytes
 
 # Preset sample test images
 SAMPLE_IMAGES = {
@@ -134,6 +135,7 @@ def render_inspection_page(
                 st.session_state["latest_image_name"] = image_filename
                 st.session_state["latest_image_path"] = image_file_path
                 st.session_state["latest_original_image"] = image_to_process
+                st.session_state.pop("saved_rec_id", None)
             except Exception as exc:
                 st.error(f"Inference failed: {exc}")
                 return
@@ -218,9 +220,9 @@ def render_inspection_page(
                 f"of total cell area (Threshold: {result.threshold})."
             )
 
-        # Persistence to SQLite
+        # Persistence & Report Export
         st.markdown("---")
-        col_save1, col_save2 = st.columns([2, 1])
+        col_save1, col_save2, col_save3 = st.columns([1.5, 1.0, 1.0])
         with col_save1:
             user_notes = st.text_input(
                 "Add Inspection Notes (Optional)",
@@ -230,11 +232,30 @@ def render_inspection_page(
         with col_save2:
             st.write("")
             st.write("")
-            if st.button("💾 Save to Inspection History", use_container_width=True):
+            if st.button("💾 Save to History", use_container_width=True):
                 rec_id = db_manager.save_inspection(
                     result=result,
                     image_name=img_name,
                     image_path=st.session_state.get("latest_image_path"),
                     notes=user_notes,
                 )
-                st.success(f"✅ Inspection logged successfully! Record ID: #{rec_id}")
+                st.session_state["saved_rec_id"] = rec_id
+                st.success(f"✅ Logged! Record ID: #{rec_id}")
+
+        with col_save3:
+            st.write("")
+            st.write("")
+            pdf_bytes = generate_inspection_pdf_bytes(
+                result=result,
+                inspection_id=st.session_state.get("saved_rec_id"),
+                image_name=img_name,
+                original_image=orig_img,
+                notes=user_notes,
+            )
+            st.download_button(
+                label="📥 Export PDF Report",
+                data=pdf_bytes,
+                file_name=f"SolarVision_{result.inspection_type.value}_{Path(img_name).stem}.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+            )

@@ -17,6 +17,10 @@ from src.evaluation.visualizer import (
     plot_confusion_matrix,
     plot_training_history,
 )
+from src.utils.report_generator import (
+    generate_inspection_pdf,
+    generate_inspection_pdf_bytes,
+)
 
 __all__ = [
     "evaluate_classification",
@@ -27,4 +31,6 @@ __all__ = [
     "plot_training_history",
     "plot_confusion_matrix",
     "generate_classification_report_markdown",
+    "generate_inspection_pdf",
+    "generate_inspection_pdf_bytes",
 ]

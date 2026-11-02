@@ -1,6 +1,6 @@
 """
 Module: utils
-Description: Utility modules for configuration, seeding, image handling, and models
+Description: Utility modules for configuration, seeding, image handling, models, and PDF reporting
 Author: SolarVision AI Team
 Created: 2026-11-02
 """
@@ -14,6 +14,10 @@ from src.utils.model_utils import (
     load_checkpoint,
     save_checkpoint,
 )
+from src.utils.report_generator import (
+    generate_inspection_pdf,
+    generate_inspection_pdf_bytes,
+)
 
 __all__ = [
     "load_yaml_config",
@@ -26,4 +30,6 @@ __all__ = [
     "get_model_summary",
     "load_checkpoint",
     "save_checkpoint",
+    "generate_inspection_pdf",
+    "generate_inspection_pdf_bytes",
 ]

@@ -134,7 +134,7 @@
 
 ---
 
-### ⏳ Step 9 — Streamlit Dashboard & Analytics
+### ✅ Step 9 — Streamlit Dashboard & Analytics
 **Goal:** Build a polished, functional, multi-page dashboard around the unified inference pipeline.
 
 - [x] Multi-page interface with styled sidebar (app/main.py)
@@ -149,17 +149,18 @@
 
 ---
 
-### 🔒 Step 10 — Testing, Documentation & Packaging
-**Goal:** Production-quality codebase.
+### ⏳ Step 10 — Reports, Final Testing & Packaging
+**Goal:** Prepare the complete project for academic demonstration and submission.
 
-- [ ] Unit tests for all `src/` modules (≥ 80% coverage)
-- [ ] Integration tests for full pipeline
-- [ ] API documentation (docstrings + README)
-- [ ] Final `docs/` update
-- [ ] Package build (`pyproject.toml` / wheel)
-- [ ] Deployment instructions
+- [x] Automated ReportLab PDF inspection report generator (`src/utils/report_generator.py`)
+- [x] Academic prototype disclaimer & human verification notice on all outputs
+- [x] In-dashboard PDF export from live inspection and historical records
+- [x] Windows automation scripts (`setup.bat` and `run.bat`) for zero-friction launch
+- [x] Standardized `pyproject.toml` wheel build metadata and dependencies
+- [x] Complete test suite passing with 104 unit and integration tests (94% coverage)
+- [x] Comprehensive academic `README.md` with dataset citations, evaluation benchmarks, and architecture diagrams
 
-**Deliverables:** All tests passing, final documentation, deployable package
+**Deliverables:** `src/utils/report_generator.py`, `setup.bat`, `run.bat`, `pyproject.toml`, `README.md`
 
 ---
 

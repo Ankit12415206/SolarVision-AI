@@ -154,3 +154,58 @@ class InferenceResult:
                 data["mask"] = self.mask.tolist()
 
         return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "InferenceResult":
+        """Reconstruct InferenceResult from a dictionary representation.
+
+        Args:
+            data: Dictionary representation.
+
+        Returns:
+            InferenceResult: Reconstructed instance.
+        """
+        itype = InspectionType.from_str(data["inspection_type"])
+        boxes = None
+        if "boxes" in data and data["boxes"] is not None:
+            boxes = [
+                BoundingBox(
+                    x1=float(b["x1"]),
+                    y1=float(b["y1"]),
+                    x2=float(b["x2"]),
+                    y2=float(b["y2"]),
+                    score=float(b["score"]),
+                    class_id=int(b["class_id"]),
+                    class_name=str(b["class_name"]),
+                )
+                for b in data["boxes"]
+            ]
+
+        mask = None
+        if "mask" in data and data["mask"] is not None:
+            mask = np.array(data["mask"], dtype=np.uint8)
+
+        return cls(
+            inspection_type=itype,
+            model_name=data.get("model_name", "SolarVision"),
+            model_version=data.get("model_version", "v1.0"),
+            processing_time_ms=float(data.get("processing_time_ms", 0.0)),
+            image_metadata=data.get("image_metadata", {}),
+            predicted_class=data.get("predicted_class"),
+            confidence=(
+                float(data["confidence"])
+                if data.get("confidence") is not None
+                else None
+            ),
+            class_probabilities=data.get("class_probabilities"),
+            boxes=boxes,
+            mask=mask,
+            defect_ratio=(
+                float(data["defect_ratio"])
+                if data.get("defect_ratio") is not None
+                else None
+            ),
+            threshold=(
+                float(data["threshold"]) if data.get("threshold") is not None else None
+            ),
+        )

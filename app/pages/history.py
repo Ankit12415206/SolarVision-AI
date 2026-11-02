@@ -16,6 +16,8 @@ from app.components.charts import (
     plot_modality_breakdown,
 )
 from src.database.manager import InspectionDatabaseManager
+from src.inference.types import InferenceResult
+from src.utils.report_generator import generate_inspection_pdf_bytes
 
 
 def render_history_page(db_manager: InspectionDatabaseManager) -> None:
@@ -138,7 +140,7 @@ def render_history_page(db_manager: InspectionDatabaseManager) -> None:
             )
 
         # Inspect Single Record Details
-        with st.expander("🔍 View Inspection Record Details & JSON Payload"):
+        with st.expander("🔍 View Inspection Record Details & Export PDF"):
             record_id = st.number_input(
                 "Enter Record ID to Inspect",
                 min_value=1,
@@ -169,9 +171,38 @@ def render_history_page(db_manager: InspectionDatabaseManager) -> None:
                     except Exception:
                         st.text(rec["details_json"])
 
-                if st.button(f"🗑️ Delete Record #{rec['id']}", type="secondary"):
-                    db_manager.delete_inspection(rec["id"])
-                    st.success(f"Record #{rec['id']} deleted. Refreshing...")
-                    st.rerun()
+                col_act1, col_act2 = st.columns(2)
+                with col_act1:
+                    if rec["details_json"]:
+                        try:
+                            res_obj = InferenceResult.from_dict(
+                                json.loads(rec["details_json"])
+                            )
+                            pdf_bytes = generate_inspection_pdf_bytes(
+                                result=res_obj,
+                                inspection_id=rec["id"],
+                                image_name=rec["image_name"],
+                                notes=rec["notes"],
+                                timestamp=rec["timestamp"],
+                            )
+                            st.download_button(
+                                label=f"📥 Download PDF Report for Record #{rec['id']}",
+                                data=pdf_bytes,
+                                file_name=f"SolarVision_Record_{rec['id']}_{rec['image_name']}.pdf",
+                                mime="application/pdf",
+                                use_container_width=True,
+                            )
+                        except Exception as exc:
+                            st.warning(f"Could not prepare PDF: {exc}")
+
+                with col_act2:
+                    if st.button(
+                        f"🗑️ Delete Record #{rec['id']}",
+                        type="secondary",
+                        use_container_width=True,
+                    ):
+                        db_manager.delete_inspection(rec["id"])
+                        st.success(f"Record #{rec['id']} deleted. Refreshing...")
+                        st.rerun()
     else:
         st.info("No matching inspection records found for the applied filter.")
