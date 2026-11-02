@@ -5,13 +5,20 @@ Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
+import sys
+from pathlib import Path
 from typing import Any, Dict, List
+
+# Ensure project root is in sys.path for cloud deployment
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 import pandas as pd
 import streamlit as st
 from PIL import Image
 
-from src.database.manager import InspectionDatabaseManager
+from src.database.manager import DEFAULT_DB_PATH, InspectionDatabaseManager
 from src.inference import InspectionType, SolarVisionInferencePipeline
 
 
@@ -199,3 +206,12 @@ def render_batch_page(
                 with cols[i % len(cols)]:
                     st.caption(f"**{p['name']}** — {p['status']}: {p['finding']}")
                     st.image(p["image"], use_container_width=True)
+
+
+if __name__ == "__main__":
+    from app.components.styles import apply_custom_theme
+
+    apply_custom_theme()
+    pipe = SolarVisionInferencePipeline(device="cpu", auto_load=False)
+    db = InspectionDatabaseManager(db_path=DEFAULT_DB_PATH)
+    render_batch_page(pipe, db)

@@ -16,9 +16,9 @@ if str(ROOT_DIR) not in sys.path:
 import streamlit as st
 
 from app.components.styles import apply_custom_theme
-from app.pages.batch import render_batch_page
-from app.pages.history import render_history_page
-from app.pages.inspection import render_inspection_page
+from app.views.batch import render_batch_page
+from app.views.history import render_history_page
+from app.views.inspection import render_inspection_page
 from src.database.manager import DEFAULT_DB_PATH, InspectionDatabaseManager
 from src.inference import SolarVisionInferencePipeline
 

@@ -5,15 +5,21 @@ Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
+import sys
 from pathlib import Path
 from typing import Optional
+
+# Ensure project root is in sys.path for cloud deployment
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 import pandas as pd
 import streamlit as st
 from PIL import Image
 
 from app.components.charts import plot_class_probabilities
-from src.database.manager import InspectionDatabaseManager
+from src.database.manager import DEFAULT_DB_PATH, InspectionDatabaseManager
 from src.inference import InspectionType, SolarVisionInferencePipeline
 from src.utils.report_generator import generate_inspection_pdf_bytes
 
@@ -262,3 +268,12 @@ def render_inspection_page(
                 mime="application/pdf",
                 use_container_width=True,
             )
+
+
+if __name__ == "__main__":
+    from app.components.styles import apply_custom_theme
+
+    apply_custom_theme()
+    pipe = SolarVisionInferencePipeline(device="cpu", auto_load=False)
+    db = InspectionDatabaseManager(db_path=DEFAULT_DB_PATH)
+    render_inspection_page(pipe, db)

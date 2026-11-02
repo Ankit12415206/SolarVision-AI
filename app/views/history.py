@@ -6,6 +6,13 @@ Created: 2026-11-02
 """
 
 import json
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path for cloud deployment
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 import pandas as pd
 import streamlit as st
@@ -15,7 +22,7 @@ from app.components.charts import (
     plot_defect_distribution,
     plot_modality_breakdown,
 )
-from src.database.manager import InspectionDatabaseManager
+from src.database.manager import DEFAULT_DB_PATH, InspectionDatabaseManager
 from src.inference.types import InferenceResult
 from src.utils.report_generator import generate_inspection_pdf_bytes
 
@@ -206,3 +213,11 @@ def render_history_page(db_manager: InspectionDatabaseManager) -> None:
                         st.rerun()
     else:
         st.info("No matching inspection records found for the applied filter.")
+
+
+if __name__ == "__main__":
+    from app.components.styles import apply_custom_theme
+
+    apply_custom_theme()
+    db = InspectionDatabaseManager(db_path=DEFAULT_DB_PATH)
+    render_history_page(db)

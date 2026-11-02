@@ -244,7 +244,7 @@ SolarVision-AI/
 ├── app/                        # Streamlit Dashboard UI
 │   ├── main.py                 # Multi-page coordinator & sidebar navigation
 │   ├── components/             # Themes, custom CSS & Plotly chart generators
-│   └── pages/                  # Inspection, Batch, and History page modules
+│   └── views/                  # Inspection, Batch, and History view modules
 ├── checkpoints/                # Trained PyTorch model weights (best checkpoints)
 │   ├── classification/         # mobilenet_v2_best.pt
 │   ├── detection/              # yolov8n_best.pt
