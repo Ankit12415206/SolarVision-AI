@@ -5,7 +5,7 @@ Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import torch

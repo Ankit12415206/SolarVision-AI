@@ -5,7 +5,6 @@ Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
-from typing import Tuple
 
 import torch
 import torch.nn as nn

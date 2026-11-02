@@ -90,9 +90,9 @@ All models were evaluated on designated, leak-free test partitions. Checkpoints 
 
 ### 4.1 Classification: `SolarMobileNetV2`
 - **Dataset:** Dataset A (Solar Panel Images, 6 classes, duplicate-grouped stratified split).
-- **Test Set Accuracy:** **83.33%** (vs. 69.57% Custom CNN baseline, +13.76% improvement).
-- **Macro F1 Score:** **75.31%** | **Weighted F1 Score:** **83.05%**
-- **Per-Class Recall:** Clean (95.0%), Snow-Covered (94.7%), Bird-drop (88.9%), Dusty (82.6%), Physical-Damage (81.0%).
+- **Test Set Accuracy:** **83.33%** (115/138 images; vs. 69.57% Custom CNN baseline, +13.76% improvement).
+- **Macro F1 Score:** **83.54%** | **Weighted F1 Score:** **83.49%** (Macro Precision: 85.19%, Macro Recall: 82.50%).
+- **Per-Class F1 / Recall:** Electrical-damage (90.32% F1 / 82.35% Recall), Snow-Covered (93.75% F1 / 88.24% Recall), Bird-drop (84.51% F1 / 85.71% Recall), Clean (81.97% F1 / 89.29% Recall), Dusty (77.97% F1 / 76.67% Recall), Physical-Damage (72.73% F1 / 72.73% Recall).
 - **CPU Inference Latency:** ~92 ms per image.
 
 ### 4.2 Object Detection: `SolarYOLOv8n`

@@ -5,7 +5,6 @@ Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
-import json
 from pathlib import Path
 from typing import Any, Dict, List, Union
 
@@ -370,10 +369,10 @@ def generate_classification_report_markdown(
             f"- MobileNetV2 achieved **{mobilenet_test['accuracy']*100:.2f}%** test accuracy, outperforming the Custom CNN baseline ({custom_cnn_test['accuracy']*100:.2f}%) by **{diff_acc:+.2f}%**.\n"
         )
         f.write(
-            f"- Pretrained ImageNet representations provide strong feature transfer on solar defect textures.\n"
+            "- Pretrained ImageNet representations provide strong feature transfer on solar defect textures.\n"
         )
         f.write(
-            f"- Checkpoints are saved under `checkpoints/classification/` for downstream inference and dashboard integration.\n"
+            "- Checkpoints are saved under `checkpoints/classification/` for downstream inference and dashboard integration.\n"
         )
 
     return out_file
