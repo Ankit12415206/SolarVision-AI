@@ -27,27 +27,32 @@
 
 ---
 
-### ⏳ Step 2 — Dataset Research & Acquisition
+### ✅ Step 2 — Dataset Research & Acquisition
 **Goal:** Identify, download, and organize datasets.
 
-- [ ] Research and evaluate public solar panel defect datasets
-- [ ] Download selected datasets into `data/raw/`
-- [ ] Explore dataset statistics (class distribution, image sizes, quality)
-- [ ] Define unified annotation format (YOLO TXT preferred)
-- [ ] Document dataset provenance and licenses
-- [ ] Create `data/README.md`
+- [x] Research and evaluate public solar panel defect datasets
+- [x] Download selected datasets into `data/raw/` and `data/external/`
+- [x] Explore dataset statistics (class distribution, image sizes, quality)
+- [x] Verify annotation formats (Classification, YOLO Detection, MSPS Binary Segmentation)
+- [x] Document dataset provenance and licenses
+- [x] Create dataset verification scripts and reports
 
-**Deliverables:** Populated `data/raw/`, updated `docs/dataset_research.md`
+**Deliverables:** Populated `data/raw/`, `docs/dataset_research.md`, verification reports.
 
 ---
 
-### 🔒 Step 3 — Data Preprocessing Pipeline
+### ✅ Step 3 — Data Preprocessing Pipeline
 **Goal:** Build a reproducible preprocessing and augmentation pipeline.
 
-- [ ] Image resizing and normalization (`src/data/preprocessing.py`)
-- [ ] Train/val/test splitting with stratification (`src/data/splitter.py`)
-- [ ] Augmentation pipeline (rotation, flips, brightness, noise) (`src/data/transforms.py`)
-- [ ] PyTorch `Dataset` and `DataLoader` classes (`src/data/dataset.py`, `loader.py`)
+- [x] Install PyTorch and Torchvision CPU (`torch-2.15.0+cpu`, `torchvision-0.29.2+cpu`)
+- [x] Image resizing, RGB/Grayscale validation, and normalization (`src/utils/image.py`, `src/data/transforms.py`)
+- [x] Train/val/test splitting with group-aware stratification to eliminate duplicate leakage (`src/data/classification.py`, `src/data/detection.py`, `src/data/segmentation.py`)
+- [x] Training augmentations and nearest-neighbor mask transforms (`src/data/transforms.py`)
+- [x] PyTorch `Dataset` and `DataLoader` classes for all 3 pipelines (`src/data/`)
+- [x] CLI preprocessing runner and split manifest generation (`scripts/preprocess_data.py`)
+- [x] 95% unit test coverage with 28 automated tests (`tests/unit/`)
+
+**Deliverables:** `src/data/`, `src/utils/`, `data/processed/splits/`, `reports/dataset_verification/preprocessing_report.md`
 - [ ] Config-driven pipeline (YAML)
 - [ ] Unit tests for all data modules
 

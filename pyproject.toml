@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "solarvision-ai"
@@ -47,16 +47,7 @@ include = ["src*", "app*"]
 line-length = 88
 target-version = ["py311", "py312"]
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.venv
-  | build
-  | dist
-  | checkpoints
-  | data
-)/
-'''
+exclude = '(\.git|\.venv|build|dist|checkpoints|data)'
 
 # ── isort ─────────────────────────────────────────────────────
 [tool.isort]
