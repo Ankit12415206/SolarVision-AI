@@ -15,7 +15,14 @@ from app.components.charts import (
     plot_defect_distribution,
     plot_modality_breakdown,
 )
+from app.components.styles import apply_custom_theme
 from app.main import get_db_manager, get_inference_pipeline
+from app.views import (
+    render_batch_page,
+    render_history_page,
+    render_inspection_page,
+    render_overview_page,
+)
 from src.database.manager import InspectionDatabaseManager
 from src.inference import InspectionType, SolarVisionInferencePipeline
 
@@ -82,6 +89,48 @@ class TestAppComponentsAndCharts:
         assert isinstance(fig, go.Figure)
         assert len(fig.data) == 1
         assert fig.data[0].type == "scatter"
+
+    def test_theme_aware_charts(self) -> None:
+        """Verify charts render in both dark and light modes with proper styling."""
+        probs = {"Clean": 0.8, "Dusty": 0.2}
+        analytics = {
+            "clean_count": 5,
+            "defect_count": 2,
+            "inspections_by_type": {"classification": 7},
+            "daily_trend": [{"date": "2026-11-01", "count": 7}],
+        }
+        for theme in ["dark", "light"]:
+            fig_probs = plot_class_probabilities(probs, theme=theme)
+            fig_donut = plot_defect_distribution(analytics, theme=theme)
+            fig_bar = plot_modality_breakdown(analytics, theme=theme)
+            fig_trend = plot_daily_trend(analytics, theme=theme)
+
+            assert isinstance(fig_probs, go.Figure)
+            assert isinstance(fig_donut, go.Figure)
+            assert isinstance(fig_bar, go.Figure)
+            assert isinstance(fig_trend, go.Figure)
+
+    def test_views_exported_callable(self) -> None:
+        """Verify all 4 UI views are properly exported and callable."""
+        assert callable(render_overview_page)
+        assert callable(render_inspection_page)
+        assert callable(render_batch_page)
+        assert callable(render_history_page)
+
+    def test_apply_custom_theme_injection(self, monkeypatch) -> None:
+        """Verify CSS injection runs for both dark and light modes."""
+        markdown_calls = []
+        monkeypatch.setattr(
+            "streamlit.markdown",
+            lambda content, **kwargs: markdown_calls.append(content),
+        )
+        apply_custom_theme("dark")
+        apply_custom_theme("light")
+        assert len(markdown_calls) == 2
+        assert "--sv-bg-main" in markdown_calls[0]
+        assert "--sv-bg-main" in markdown_calls[1]
+        assert "#0B0F19" in markdown_calls[0]
+        assert "#F8FAFC" in markdown_calls[1]
 
 
 class TestFullDashboardWorkflow:

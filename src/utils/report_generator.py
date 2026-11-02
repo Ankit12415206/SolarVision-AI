@@ -65,7 +65,7 @@ def _pil_to_reportlab_image(
 
 def generate_inspection_pdf_bytes(
     result: InferenceResult,
-    inspection_id: Optional[int] = None,
+    inspection_id: Optional[Union[int, str]] = None,
     image_name: Optional[str] = None,
     original_image: Optional[PILImage.Image] = None,
     notes: Optional[str] = None,
@@ -141,7 +141,14 @@ def generate_inspection_pdf_bytes(
     )
 
     now_str = timestamp or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    record_id_str = f"#{inspection_id}" if inspection_id else "Unsaved Session"
+    if inspection_id:
+        record_id_str = (
+            str(inspection_id)
+            if str(inspection_id).startswith("SV-")
+            else f"#{inspection_id}"
+        )
+    else:
+        record_id_str = "Unsaved Session"
     img_name_str = (
         image_name or Path(result.image_metadata.get("source", "sample.jpg")).name
     )
@@ -417,7 +424,7 @@ def generate_inspection_pdf_bytes(
 def generate_inspection_pdf(
     result: InferenceResult,
     output_path: Union[str, Path],
-    inspection_id: Optional[int] = None,
+    inspection_id: Optional[Union[int, str]] = None,
     image_name: Optional[str] = None,
     original_image: Optional[PILImage.Image] = None,
     notes: Optional[str] = None,

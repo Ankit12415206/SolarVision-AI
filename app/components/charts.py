@@ -11,24 +11,56 @@ import plotly.graph_objects as go
 
 # Brand color constants
 PALETTE = {
-    "clean": "#22C55E",  # Green
+    "clean": "#10B981",  # Emerald Green
     "dusty": "#F59E0B",  # Amber
-    "damage": "#EF4444",  # Red
-    "accent": "#0EA5E9",  # Sky blue
-    "bg_dark": "#1E293B",  # Slate
-    "text_light": "#F8FAFC",  # White
+    "damage": "#EF4444",  # Crimson Red
+    "accent": "#3B82F6",  # Royal Blue
+    "teal": "#06B6D4",  # Cyan/Teal
+    "purple": "#8B5CF6",  # Violet
 }
 
 
-def plot_class_probabilities(probs: Dict[str, float]) -> go.Figure:
+def _get_theme_styles(theme: str) -> Dict[str, str]:
+    """Retrieve theme-specific background and font colors.
+
+    Args:
+        theme: Either 'dark' or 'light'.
+
+    Returns:
+        Dict with color configuration.
+    """
+    if theme.lower() == "light":
+        return {
+            "template": "plotly_white",
+            "paper_bgcolor": "#FFFFFF",
+            "plot_bgcolor": "#F8FAFC",
+            "font_color": "#0F172A",
+            "grid_color": "#E2E8F0",
+            "border_color": "#CBD5E1",
+        }
+    return {
+        "template": "plotly_dark",
+        "paper_bgcolor": "#1E293B",
+        "plot_bgcolor": "#0F172A",
+        "font_color": "#F8FAFC",
+        "grid_color": "#334155",
+        "border_color": "#475569",
+    }
+
+
+def plot_class_probabilities(
+    probs: Dict[str, float], theme: str = "dark"
+) -> go.Figure:
     """Create horizontal bar chart of predicted class probabilities.
 
     Args:
         probs: Mapping of defect classes to softmax probabilities.
+        theme: 'dark' or 'light'. Defaults to 'dark'.
 
     Returns:
         go.Figure: Interactive Plotly horizontal bar chart.
     """
+    ts = _get_theme_styles(theme)
     sorted_items = sorted(probs.items(), key=lambda x: x[1])
     labels = [k for k, _ in sorted_items]
     values = [v * 100.0 for _, v in sorted_items]
@@ -48,42 +80,47 @@ def plot_class_probabilities(probs: Dict[str, float]) -> go.Figure:
             x=values,
             y=labels,
             orientation="h",
-            marker=dict(color=colors, line=dict(color="#334155", width=1)),
+            marker=dict(color=colors, line=dict(color=ts["border_color"], width=1)),
             text=[f"{v:.1f}%" for v in values],
             textposition="auto",
         )
     )
 
     fig.update_layout(
+        template=ts["template"],
         title=dict(
             text="Class Probability Distribution",
-            font=dict(color=PALETTE["text_light"]),
+            font=dict(color=ts["font_color"], size=13),
         ),
         xaxis=dict(
             title="Probability (%)",
             range=[0, 100],
             showgrid=True,
-            gridcolor="#334155",
-            color=PALETTE["text_light"],
+            gridcolor=ts["grid_color"],
+            color=ts["font_color"],
         ),
-        yaxis=dict(color=PALETTE["text_light"]),
-        plot_bgcolor="#0F172A",
-        paper_bgcolor="#1E293B",
-        margin=dict(l=10, r=20, t=40, b=20),
+        yaxis=dict(color=ts["font_color"]),
+        plot_bgcolor=ts["plot_bgcolor"],
+        paper_bgcolor=ts["paper_bgcolor"],
+        margin=dict(l=10, r=20, t=35, b=20),
         height=260,
     )
     return fig
 
 
-def plot_defect_distribution(analytics: Dict[str, Any]) -> go.Figure:
+def plot_defect_distribution(
+    analytics: Dict[str, Any], theme: str = "dark"
+) -> go.Figure:
     """Create donut chart showing Clean vs Defective panel ratios.
 
     Args:
         analytics: Analytics dictionary from InspectionDatabaseManager.
+        theme: 'dark' or 'light'. Defaults to 'dark'.
 
     Returns:
         go.Figure: Donut chart figure.
     """
+    ts = _get_theme_styles(theme)
     clean = analytics.get("clean_count", 0)
     defect = analytics.get("defect_count", 0)
 
@@ -95,33 +132,44 @@ def plot_defect_distribution(analytics: Dict[str, Any]) -> go.Figure:
             go.Pie(
                 labels=["Healthy / Clean", "Defect / Soiled"],
                 values=[clean, defect],
-                hole=0.6,
-                marker=dict(colors=[PALETTE["clean"], PALETTE["damage"]]),
+                hole=0.62,
+                marker=dict(
+                    colors=[PALETTE["clean"], PALETTE["damage"]],
+                    line=dict(color=ts["border_color"], width=1),
+                ),
                 textinfo="label+percent",
             )
         ]
     )
 
     fig.update_layout(
-        title=dict(text="Panel Health Ratio", font=dict(color=PALETTE["text_light"])),
-        plot_bgcolor="#0F172A",
-        paper_bgcolor="#1E293B",
-        legend=dict(font=dict(color=PALETTE["text_light"])),
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=280,
+        template=ts["template"],
+        title=dict(
+            text="Panel Health Ratio",
+            font=dict(color=ts["font_color"], size=13),
+        ),
+        plot_bgcolor=ts["plot_bgcolor"],
+        paper_bgcolor=ts["paper_bgcolor"],
+        legend=dict(font=dict(color=ts["font_color"])),
+        margin=dict(l=20, r=20, t=35, b=20),
+        height=270,
     )
     return fig
 
 
-def plot_modality_breakdown(analytics: Dict[str, Any]) -> go.Figure:
+def plot_modality_breakdown(
+    analytics: Dict[str, Any], theme: str = "dark"
+) -> go.Figure:
     """Create bar chart of inspections categorized by modality.
 
     Args:
         analytics: Analytics dictionary.
+        theme: 'dark' or 'light'. Defaults to 'dark'.
 
     Returns:
         go.Figure: Modality breakdown bar chart.
     """
+    ts = _get_theme_styles(theme)
     by_type = analytics.get("inspections_by_type", {})
     categories = ["Classification", "Detection", "Segmentation"]
     counts = [
@@ -134,40 +182,55 @@ def plot_modality_breakdown(analytics: Dict[str, Any]) -> go.Figure:
         go.Bar(
             x=categories,
             y=counts,
-            marker=dict(color=[PALETTE["accent"], PALETTE["dusty"], "#8B5CF6"]),
+            marker=dict(
+                color=[PALETTE["accent"], PALETTE["dusty"], PALETTE["purple"]],
+                line=dict(color=ts["border_color"], width=1),
+            ),
             text=counts,
             textposition="auto",
         )
     )
 
     fig.update_layout(
+        template=ts["template"],
         title=dict(
-            text="Inspections by Modality", font=dict(color=PALETTE["text_light"])
+            text="Inspections by Modality",
+            font=dict(color=ts["font_color"], size=13),
         ),
-        xaxis=dict(color=PALETTE["text_light"]),
+        xaxis=dict(color=ts["font_color"]),
         yaxis=dict(
-            title="Inspections", color=PALETTE["text_light"], gridcolor="#334155"
+            title="Inspections",
+            color=ts["font_color"],
+            gridcolor=ts["grid_color"],
         ),
-        plot_bgcolor="#0F172A",
-        paper_bgcolor="#1E293B",
-        margin=dict(l=10, r=10, t=40, b=20),
-        height=280,
+        plot_bgcolor=ts["plot_bgcolor"],
+        paper_bgcolor=ts["paper_bgcolor"],
+        margin=dict(l=10, r=10, t=35, b=20),
+        height=270,
     )
     return fig
 
 
-def plot_daily_trend(analytics: Dict[str, Any]) -> go.Figure:
+def plot_daily_trend(analytics: Dict[str, Any], theme: str = "dark") -> go.Figure:
     """Create line chart showing daily inspection volume trend.
 
     Args:
         analytics: Analytics dictionary with daily_trend list.
+        theme: 'dark' or 'light'. Defaults to 'dark'.
 
     Returns:
         go.Figure: Daily trend line chart.
     """
+    ts = _get_theme_styles(theme)
     daily = analytics.get("daily_trend", [])
     dates = [d["date"] for d in daily] or ["Today"]
     counts = [d["count"] for d in daily] or [0]
+
+    fill_rgba = (
+        "rgba(37, 99, 235, 0.12)"
+        if theme.lower() == "light"
+        else "rgba(59, 130, 246, 0.18)"
+    )
 
     fig = go.Figure()
     fig.add_trace(
@@ -175,22 +238,28 @@ def plot_daily_trend(analytics: Dict[str, Any]) -> go.Figure:
             x=dates,
             y=counts,
             mode="lines+markers",
-            line=dict(color=PALETTE["accent"], width=3),
-            marker=dict(size=8, color=PALETTE["clean"]),
+            line=dict(color=PALETTE["accent"], width=2.5),
+            marker=dict(size=7, color=PALETTE["clean"]),
             fill="tozeroy",
-            fillcolor="rgba(14, 165, 233, 0.15)",
+            fillcolor=fill_rgba,
         )
     )
 
     fig.update_layout(
+        template=ts["template"],
         title=dict(
-            text="Inspection Volume Over Time", font=dict(color=PALETTE["text_light"])
+            text="Inspection Volume Trend",
+            font=dict(color=ts["font_color"], size=13),
         ),
-        xaxis=dict(title="Date", color=PALETTE["text_light"]),
-        yaxis=dict(title="Count", color=PALETTE["text_light"], gridcolor="#334155"),
-        plot_bgcolor="#0F172A",
-        paper_bgcolor="#1E293B",
-        margin=dict(l=10, r=10, t=40, b=20),
-        height=280,
+        xaxis=dict(title="Date", color=ts["font_color"]),
+        yaxis=dict(
+            title="Inspections",
+            color=ts["font_color"],
+            gridcolor=ts["grid_color"],
+        ),
+        plot_bgcolor=ts["plot_bgcolor"],
+        paper_bgcolor=ts["paper_bgcolor"],
+        margin=dict(l=10, r=10, t=35, b=20),
+        height=270,
     )
     return fig

@@ -116,17 +116,18 @@ All models were evaluated on designated, leak-free test partitions. Checkpoints 
 ## 5. Dataset Attribution & Citations
 
 1. **Dataset A — Solar Panel Defect Classification**
-   - Source: Kaggle Solar Panel Images Dataset.
+   - Source: Kaggle (`pythonafroz/solar-panel-images`, 2023).
    - Classes: `Bird-drop`, `Clean`, `Dusty`, `Electrical-damage`, `Physical-Damage`, `Snow-Covered`.
-   - License: CC BY 4.0.
+   - License: **Unspecified / Web-Sourced Collection** (Fair-use academic demonstration and classroom evaluation only; commercial redistribution unverified).
+   - *Redistribution Notice:* Raw Dataset A samples are not bundled in the public repository due to unspecified web licenses. An aerial RGB drone sample licensed under CC BY 4.0 is bundled under `data/demo/classification/` for demonstration.
 2. **Dataset B — Aerial Solar Panel Soiling Detection**
-   - Source: Roboflow Universe Aerial Soiling Dataset.
+   - Source: Roboflow Universe (`soiling_dropping-2` v14) & PMC11821171.
    - Annotations: YOLO format bounding boxes for `Dust` and `bird-droppings`.
-   - License: CC BY 4.0.
+   - License: **[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)** (Creative Commons Attribution 4.0 International).
 3. **Dataset C — MSPS Multi-Scene Photovoltaic Electroluminescence Segmentation**
-   - Source: Public PV Electroluminescence Benchmark Dataset.
+   - Source: Zhao et al. (2026), Zenodo DOI: `10.5281/zenodo.21549573` & GitHub (`wch313/MSPS-Dataset`).
    - Content: Grayscale EL cell crops and ground-truth binary crack segmentation masks.
-   - License: Academic Research Use.
+   - License: **[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)** (Creative Commons Attribution 4.0 International).
 
 ---
 

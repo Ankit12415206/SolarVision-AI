@@ -114,6 +114,26 @@ class TestPDFReportGenerator:
         assert out_file.exists()
         assert out_file.stat().st_size > 2000
 
+    def test_inspection_id_string_in_pdf(self) -> None:
+        """Verify report generation with standardized unique Inspection ID string."""
+        res = InferenceResult(
+            inspection_type=InspectionType.CLASSIFICATION,
+            model_name="SolarMobileNetV2",
+            model_version="v1.0",
+            processing_time_ms=75.0,
+            image_metadata={"width": 224, "height": 224, "source": "panel.jpg"},
+            predicted_class="Clean",
+            confidence=0.98,
+        )
+        pdf_bytes = generate_inspection_pdf_bytes(
+            result=res,
+            inspection_id="SV-2026-000001",
+            image_name="panel.jpg",
+        )
+        assert isinstance(pdf_bytes, bytes)
+        assert len(pdf_bytes) > 1000
+        assert pdf_bytes.startswith(b"%PDF-")
+
     def test_pil_to_reportlab_image_scaling(self) -> None:
         """Verify aspect ratio preservation during image scaling."""
         img = Image.new("RGB", (1000, 500), color=(100, 150, 200))
