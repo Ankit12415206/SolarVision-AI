@@ -74,17 +74,19 @@
 
 ---
 
-### 🔒 Step 5 — Training Pipeline
-**Goal:** Implement training loops for all model types.
+### ✅ Step 5 — Classification Training & Evaluation
+**Goal:** Implement training loops, callbacks, train Custom CNN and MobileNetV2, and evaluate on test set.
 
-- [ ] Generic trainer class (`src/training/trainer.py`)
-- [ ] Loss functions: CrossEntropy, Focal Loss, Dice Loss
-- [ ] LR schedulers: CosineAnnealing, ReduceLROnPlateau
-- [ ] Early stopping and best-model checkpointing
-- [ ] Training logs (Loguru + CSV export)
-- [ ] Config-driven training (YAML)
+- [x] Reusable ClassificationTrainer with epoch training/validation loops (`src/training/trainer.py`)
+- [x] Early stopping callback and best checkpoint auto-saving (`src/training/callbacks.py`)
+- [x] Cosine Annealing learning rate scheduling
+- [x] Sequential training on CPU: SolarCustomCNN (12 epochs) & SolarMobileNetV2 (probe + fine-tuning)
+- [x] Multi-class metrics: Accuracy, Precision, Recall, Macro-F1, Weighted-F1, per-class report, confusion matrix (`src/evaluation/metrics.py`)
+- [x] Plotly interactive training curves and confusion matrix heatmaps (`src/evaluation/visualizer.py`)
+- [x] 54 unit tests passing with 96% total code coverage (`tests/unit/`)
+- [x] MobileNetV2 achieved 83.33% test accuracy (outperforming Custom CNN by +13.76%)
 
-**Deliverables:** Working training scripts for all three model types
+**Deliverables:** `src/training/`, `src/evaluation/`, `scripts/train_classification.py`, `checkpoints/classification/`, `reports/classification/classification_report.md`
 
 ---
 

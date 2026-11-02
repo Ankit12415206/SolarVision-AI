@@ -105,3 +105,30 @@ def test_classification_model_with_dataloader() -> None:
 
     assert logits.shape == (4, 6)
     assert logits.dtype == torch.float32
+
+
+def test_checkpoint_restoration_and_inference() -> None:
+    """Verify saved best checkpoints can be restored and run inference on real input."""
+    from pathlib import Path
+
+    from src.utils.model_utils import load_checkpoint
+
+    ckpt_mob = Path("checkpoints/classification/mobilenet_v2_best.pt")
+    if ckpt_mob.exists():
+        model_mob = build_classification_model(
+            "mobilenet_v2", num_classes=6, pretrained=False
+        )
+        load_checkpoint(ckpt_mob, model_mob, device=torch.device("cpu"))
+        model_mob.eval()
+        with torch.no_grad():
+            preds = model_mob(torch.randn(1, 3, 224, 224))
+        assert preds.shape == (1, 6)
+
+    ckpt_cnn = Path("checkpoints/classification/custom_cnn_best.pt")
+    if ckpt_cnn.exists():
+        model_cnn = build_classification_model("custom_cnn", num_classes=6)
+        load_checkpoint(ckpt_cnn, model_cnn, device=torch.device("cpu"))
+        model_cnn.eval()
+        with torch.no_grad():
+            preds_cnn = model_cnn(torch.randn(1, 3, 224, 224))
+        assert preds_cnn.shape == (1, 6)

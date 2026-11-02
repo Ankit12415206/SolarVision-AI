@@ -27,8 +27,8 @@ user approval of the previous step's completion report.**
 | 1    | Project Setup                 | ✅ Complete      |
 | 2    | Dataset Research & Acquisition| ✅ Complete      |
 | 3    | Data Preprocessing Pipeline   | ✅ Complete      |
-| 4    | Model Architecture Design     | ⏳ Awaiting approval |
-| 5    | Classification Module         | 🔒 Locked        |
+| 4    | Model Architecture Design     | ✅ Complete      |
+| 5    | Classification Module         | ⏳ Awaiting approval |
 | 6    | Object Detection Module       | 🔒 Locked        |
 | 7    | Segmentation Module           | 🔒 Locked        |
 | 8    | Training & Evaluation         | 🔒 Locked        |
