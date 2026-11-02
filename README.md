@@ -61,7 +61,10 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 # 4. Run tests
 pytest
 
-# 5. Launch dashboard (once built)
+# 5. Run Unified Inference CLI
+python scripts/run_inference.py --image <path_to_image> --type <classification|detection|segmentation>
+
+# 6. Launch dashboard (Step 9)
 streamlit run app/main.py
 ```
 

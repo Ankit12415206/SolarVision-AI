@@ -49,6 +49,8 @@ logs/
 # ── Reports / Outputs ────────────────────────────────────────
 reports/figures/
 reports/pdf/
+reports/inference/*
+!reports/inference/.gitkeep
 
 # ── Database ─────────────────────────────────────────────────
 *.db
