@@ -1,110 +1,102 @@
-# Dataset Research — SolarVision AI
+# Dataset Research & Acquisition — SolarVision AI
 
-> Status: Draft (Step 1) | To be completed in Step 2
+> Status: Completed (Step 2) | Last updated: 2026-11-02
 
 ---
 
 ## 1. Overview
 
-This document catalogs candidate datasets for training and evaluating the
-SolarVision AI defect detection system. Two primary defect classes are targeted:
-
-1. **Dust / soiling** — Particulate matter reducing panel efficiency
-2. **Micro-cracks** — Structural cell fractures (often invisible to the naked eye)
-
----
-
-## 2. Candidate Public Datasets
-
-### 2.1 ELPV Dataset
-| Field         | Details                                                    |
-|---------------|------------------------------------------------------------|
-| **Name**      | ELPV (Electroluminescence PV) Dataset                      |
-| **Source**    | GitHub: [Buerhop-Lutz et al.](https://github.com/zae-bayern/elpv-dataset) |
-| **Images**    | 2,624 EL images of solar cells                            |
-| **Defects**   | Functional / defective classification per cell            |
-| **Format**    | PNG, CSV labels                                           |
-| **License**   | CC BY-NC-SA 4.0                                           |
-| **Notes**     | EL imaging (infrared), not drone RGB — may need adaptation|
-
-### 2.2 Solar Panel Dust Dataset (Roboflow)
-| Field         | Details                                                    |
-|---------------|------------------------------------------------------------|
-| **Name**      | Solar Panel Dust Detection                                |
-| **Source**    | Roboflow Universe                                          |
-| **Images**    | ~500–1000 (varies by version)                             |
-| **Defects**   | Dust accumulation bounding boxes                          |
-| **Format**    | YOLO TXT, COCO JSON                                       |
-| **License**   | CC BY 4.0 (check per dataset)                             |
-| **Notes**     | RGB drone imagery; directly applicable                    |
-
-### 2.3 Photovoltaic Cell Defect Dataset (Kaggle)
-| Field         | Details                                                    |
-|---------------|------------------------------------------------------------|
-| **Name**      | Solar Panel Image Dataset                                 |
-| **Source**    | Kaggle                                                    |
-| **Images**    | ~1,000–5,000                                              |
-| **Defects**   | Dirty / clean classification                              |
-| **Format**    | JPEG, folder-based class labels                           |
-| **License**   | Various (check before use)                                |
-| **Notes**     | Classification-ready, no segmentation masks               |
-
-### 2.4 PVDN Dataset (PV Defect Detection)
-| Field         | Details                                                    |
-|---------------|------------------------------------------------------------|
-| **Name**      | PVDN — Photovoltaic Defect Dataset                        |
-| **Source**    | [TU Delft / Zenodo](https://zenodo.org/)                  |
-| **Images**    | EL images with pixel-level annotations                    |
-| **Defects**   | Cracks, breaks, finger interruptions                      |
-| **Format**    | PNG + JSON masks                                          |
-| **License**   | CC BY 4.0                                                 |
-| **Notes**     | High-quality segmentation masks available                 |
-
-### 2.5 Synthetic / Augmented Data Strategy
-If real datasets are too small:
-- Use **Stable Diffusion / GAN-based augmentation** to generate synthetic defective panel images.
-- Apply **Albumentations** for geometric and photometric augmentation.
-- Minimum recommended dataset size: **1,000 images per class** for fine-tuning pretrained CNNs.
+This document catalogs the three selected datasets acquired and verified for **SolarVision AI**. The project integrates three distinct computer vision pipelines:
+1. **Classification:** Clean vs. defective surface identification.
+2. **Object Detection:** Bounding-box localization of surface soiling and bird droppings.
+3. **Semantic Segmentation:** Pixel-level segmentation of microscopic and structural cracks on solar cells.
 
 ---
 
-## 3. Dataset Requirements
+## 2. Dataset A — Solar Panel Classification
 
-| Requirement                  | Target                             |
-|------------------------------|------------------------------------|
-| Minimum images (train)       | 800 per class                      |
-| Minimum images (val)         | 200 per class                      |
-| Minimum images (test)        | 100 per class (held-out)           |
-| Image resolution             | ≥ 224×224 px (resize if needed)   |
-| Annotation format            | YOLO TXT for detection; PNG masks for segmentation |
-| Class balance                | Aim for ≤ 2:1 imbalance ratio      |
+| Field | Specification |
+|---|---|
+| **Dataset Title** | Solar Panel Images Clean and Faulty Images |
+| **Source URL** | https://www.kaggle.com/datasets/pythonafroz/solar-panel-images |
+| **Publisher** | User `pythonafroz` on Kaggle (2023) |
+| **Download Status** | ⏳ **Manual Action Required** (Kaggle anonymous requests blocked by reCAPTCHA / login barrier) |
+| **Archive Location** | Expected at `data/external/dataset_a_solar_panel_images.zip` (~305 MB) |
+| **Target Directories** | `data/raw/clean/` (Clean), `data/raw/dust/` (Dusty), other defect subfolders |
+| **Total Images** | 875 images |
+| **Image Format** | JPEG |
+| **Expected Classes** | 6 classes: <br>• `Clean`: 194 images <br>• `Bird-drop`: 192 images <br>• `Dusty`: 191 images <br>• `Snow-Covered`: 124 images <br>• `Electrical-damage`: 104 images <br>• `Physical-Damage`: 70 images |
+| **Annotation Format** | Directory-based classification labels |
+| **Supported Pipeline** | **Image Classification Module** (ResNet-50 / EfficientNet-B0) |
+| **License** | **Unspecified / Web collection** (Use with standard academic citation) |
+| **Limitations** | • Web-scraped imagery with varied resolutions and lighting.<br>• Class imbalance (70 to 194 per class).<br>• `Physical-Damage` reflects macroscopic fractures/broken glass, **not** electroluminescence micro-cracks. |
 
----
-
-## 4. Data Acquisition Plan (Step 2 Actions)
-
-- [ ] Download ELPV dataset from GitHub
-- [ ] Download solar dust datasets from Roboflow
-- [ ] Search Kaggle for additional solar panel imagery
-- [ ] Evaluate dataset sizes and class distributions
-- [ ] Decide on a unified annotation format
-- [ ] Design data augmentation strategy
-- [ ] Document data provenance and licenses in `data/README.md`
-
----
-
-## 5. Licensing Summary
-
-> ⚠️ All datasets must be reviewed for license compatibility before use.
-> Commercial use may be restricted. Store license files in `data/external/`.
+### Manual Download Instructions
+1. Visit https://www.kaggle.com/datasets/pythonafroz/solar-panel-images while logged into Kaggle.
+2. Click **Download** (downloads `archive.zip`, ~305 MB).
+3. Place `archive.zip` at `data/external/dataset_a_solar_panel_images.zip` or extract its folders into `data/raw/`.
 
 ---
 
-## 6. References
+## 3. Dataset B — Aerial Soiling Detection
 
-- Buerhop-Lutz, C. et al. (2018). ELPV Dataset. GitHub.
-- Roboflow Universe: https://universe.roboflow.com
-- Kaggle Datasets: https://www.kaggle.com/datasets
-- Zenodo (PVDN): https://zenodo.org
-- Akram, M. W. et al. (2019). A review of artificial intelligence based image
-  processing for solar PV defect detection. *Solar Energy*, 207, 170–182.
+| Field | Specification |
+|---|---|
+| **Dataset Title** | Aerial Soiling & Droppings PV Inspection Dataset (`soiling_dropping-2` v14) |
+| **Source URL** | https://www.ia-cobotics.com/research-projects/ai-driven-sola-panel-inspection |
+| **Research Reference**| PMC11821171 (https://pmc.ncbi.nlm.nih.gov/articles/PMC11821171/) |
+| **Download Status** | ✅ **Downloaded & Verified** |
+| **Archive Location** | `data/external/dataset_b_aerial_soiling.zip` (18.28 MB) |
+| **Extracted Path** | `data/raw/dust/aerial_soiling/` |
+| **Total Images** | 302 RGB aerial images |
+| **Image Resolution** | 640 × 640 pixels |
+| **Image Format** | JPEG (100% verified, 0 corrupt files) |
+| **Official Splits** | • `train`: 257 images, 257 label files <br>• `valid`: 22 images, 22 label files <br>• `test`: 23 images, 23 label files |
+| **Annotation Format** | **YOLO v5/v8 PyTorch format** (`<class_id> <x_center> <y_center> <width> <height>` normalized) |
+| **Classes & Instances**| 2 classes, **1,110 total bounding box annotations**: <br>• `Dust` (ID 0): 473 bounding boxes <br>• `bird-droppings` (ID 1): 637 bounding boxes |
+| **Label Integrity** | 100% image-to-annotation match (0 missing label files) |
+| **Supported Pipeline** | **Object Detection Module** (YOLOv8-nano / Faster R-CNN) |
+| **License** | **CC BY 4.0** (Creative Commons Attribution 4.0 International) |
+| **Limitations** | • 40 duplicate image contents resulting from Roboflow offline rotations/flips.<br>• Limited to soiling and bird-droppings; does not contain cell cracks. |
+
+---
+
+## 4. Dataset C — MSPS EL Defect Segmentation
+
+| Field | Specification |
+|---|---|
+| **Dataset Title** | MSPS (Monocrystalline Silicon Photovoltaic Cell Defect Segmentation Dataset) |
+| **Source URL** | https://doi.org/10.5281/zenodo.21549573 |
+| **GitHub Repo** | https://github.com/wch313/MSPS-Dataset |
+| **Download Status** | ✅ **Downloaded & Verified** |
+| **Archive Location** | `data/external/dataset_c_msps.zip` (343.72 MB) |
+| **Extracted Path** | `data/raw/microcracks/msps/` |
+| **Total Images** | 1,507 Electroluminescence (EL) crops |
+| **Image Resolution** | 640 × 590 pixels |
+| **Image Format** | PNG (100% verified, 0 corrupt files) |
+| **Official Splits** | • `train`: 1,004 images, 1,004 visual masks, 1,004 binary masks <br>• `test`: 503 images, 503 visual masks, 503 binary masks |
+| **Annotation Format** | **Pixel-level semantic segmentation masks**: <br>• `labels/`: Visual grayscale PNG mask (`[0, 255]`) <br>• `labels01/`: Binary PNG mask (`[0, 1]`) |
+| **Defect Types** | Busbar breaks, black spots, and micro-cracks |
+| **Label Integrity** | 100% image-to-mask match (0 missing masks, 0 missing binary masks) |
+| **Supported Pipeline** | **Semantic Segmentation Module** (U-Net with MobileNetV2 backbone) |
+| **License** | **CC BY 4.0** (Creative Commons Attribution 4.0 International) |
+| **Citation** | Zhao et al. (2026), Zenodo DOI: `10.5281/zenodo.21549573` |
+| **Limitations** | • EL imaging (near-infrared electroluminescence) rather than RGB drone cameras.<br>• Extreme class imbalance (defect pixels constitute ~0.05% of image area). |
+
+---
+
+## 5. Summary Matrix & Model Pipeline Mapping
+
+| Dataset | Modality | Images | Task | Output Target | License |
+|---|---|---|---|---|---|
+| **Dataset A** | RGB (Handheld/Drone) | 875 | Classification | 6 Classes (Clean, Dust, Damage, etc.) | Unspecified |
+| **Dataset B** | RGB (Aerial Drone) | 302 | Object Detection | Bounding boxes (Dust, Bird-drop) | CC BY 4.0 |
+| **Dataset C** | EL (Electroluminescence) | 1,507 | Segmentation | Pixel-wise defect masks (Cracks, Breaks) | CC BY 4.0 |
+
+---
+
+## 6. Storage & Organization Rules
+
+- **Raw Data Immutability:** All files in `data/raw/` are read-only.
+- **Separation of Modalities:** RGB drone imagery (`data/raw/dust/aerial_soiling/`) and EL cell crops (`data/raw/microcracks/msps/`) are strictly kept separate.
+- **Preserved Archives:** Original zip files are preserved in `data/external/`.
