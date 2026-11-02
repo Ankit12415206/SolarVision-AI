@@ -9,12 +9,13 @@ from typing import Dict, List, Tuple
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class SolarDetectionLoss(nn.Module):
     """Loss module for SolarYOLOv8n multi-scale decoupled detection heads.
 
-    Computes objectness, anchor-free bounding box regression, and multi-class classification
+    Computes balanced focal objectness, anchor-free bounding box regression, and multi-class classification
     losses across P3 (stride 8), P4 (stride 16), and P5 (stride 32) feature maps.
     """
 
@@ -25,7 +26,9 @@ class SolarDetectionLoss(nn.Module):
         lambda_obj: float = 1.0,
         lambda_box: float = 2.0,
         lambda_cls: float = 1.0,
-        pos_weight_obj: float = 5.0,
+        pos_weight_obj: float = 1.0,
+        neg_weight_obj: float = 1.0,
+        focal_gamma: float = 1.5,
     ) -> None:
         """Initialize SolarDetectionLoss.
 
@@ -35,7 +38,9 @@ class SolarDetectionLoss(nn.Module):
             lambda_obj: Objectness loss scaling weight. Defaults to 1.0.
             lambda_box: Bounding box regression loss scaling weight. Defaults to 2.0.
             lambda_cls: Classification loss scaling weight. Defaults to 1.0.
-            pos_weight_obj: Positive class weight for objectness BCE to handle background sparsity.
+            pos_weight_obj: Scaling weight for positive objectness term. Defaults to 1.0.
+            neg_weight_obj: Scaling weight for negative objectness term. Defaults to 1.0.
+            focal_gamma: Focusing parameter for modulating easy/hard examples. Defaults to 1.5.
         """
         super().__init__()
         self.num_classes = num_classes
@@ -43,10 +48,44 @@ class SolarDetectionLoss(nn.Module):
         self.lambda_obj = lambda_obj
         self.lambda_box = lambda_box
         self.lambda_cls = lambda_cls
+        self.pos_weight_obj = pos_weight_obj
+        self.neg_weight_obj = neg_weight_obj
+        self.focal_gamma = focal_gamma
 
-        self.bce_obj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([pos_weight_obj]))
-        self.smooth_l1 = nn.SmoothL1Loss(beta=0.1)
-        self.bce_cls = nn.BCEWithLogitsLoss()
+        self.smooth_l1 = nn.SmoothL1Loss(beta=0.1, reduction="mean")
+        self.bce_cls = nn.BCEWithLogitsLoss(reduction="mean")
+
+    def compute_balanced_focal_obj_loss(
+        self, logits: torch.Tensor, targets: torch.Tensor
+    ) -> torch.Tensor:
+        """Compute numerically stable balanced focal BCE loss for objectness.
+
+        Separately normalizes positive and negative contributions to prevent overwhelming
+        background dominance across thousands of feature cells.
+
+        Args:
+            logits: Predicted objectness logits (B, 1, H, W).
+            targets: Binary target map (B, 1, H, W) in {0.0, 1.0}.
+
+        Returns:
+            torch.Tensor: Scalar balanced focal loss.
+        """
+        bce = F.binary_cross_entropy_with_logits(logits, targets, reduction="none")
+        p = torch.sigmoid(logits)
+        p_t = p * targets + (1.0 - p) * (1.0 - targets)
+        focal_weight = (1.0 - p_t).pow(self.focal_gamma)
+        focal_bce = focal_weight * bce
+
+        pos_mask = targets == 1.0
+        neg_mask = targets == 0.0
+
+        n_pos = torch.clamp(pos_mask.sum(), min=1.0)
+        n_neg = torch.clamp(neg_mask.sum(), min=1.0)
+
+        loss_pos = focal_bce[pos_mask].sum() / n_pos
+        loss_neg = focal_bce[neg_mask].sum() / n_neg
+
+        return self.pos_weight_obj * loss_pos + self.neg_weight_obj * loss_neg
 
     def build_targets(
         self,
@@ -92,9 +131,20 @@ class SolarDetectionLoss(nn.Module):
             boxes = target["boxes"].to(device)
             labels = target["labels"].to(device)
 
-            for i in range(len(boxes)):
-                cx, cy, w, h = boxes[i].tolist()
-                cls_id = int(labels[i].item())
+            if len(boxes) == 0:
+                continue
+
+            # Sort boxes by area descending so smaller boxes are assigned LAST.
+            # This conflict resolution ensures smaller defect boxes (e.g. tiny bird droppings)
+            # take priority over larger diffuse dust clouds if mapping to the same cell.
+            box_areas = boxes[:, 2] * boxes[:, 3]
+            sort_indices = torch.argsort(box_areas, descending=True)
+            sorted_boxes = boxes[sort_indices]
+            sorted_labels = labels[sort_indices]
+
+            for i in range(len(sorted_boxes)):
+                cx, cy, w, h = sorted_boxes[i].tolist()
+                cls_id = int(sorted_labels[i].item())
                 if cls_id >= self.num_classes:
                     continue
 
@@ -113,6 +163,7 @@ class SolarDetectionLoss(nn.Module):
                 gx = int(min(w_s - 1, max(0, cx * w_s)))
                 gy = int(min(h_s - 1, max(0, cy * h_s)))
 
+                # Linear offset targets strictly within [0.0, 1.0]
                 s_dict["obj"][b_idx, 0, gy, gx] = 1.0
                 s_dict["mask"][b_idx, 0, gy, gx] = True
                 s_dict["box"][b_idx, 0, gy, gx] = (cx * w_s) - gx
@@ -123,6 +174,7 @@ class SolarDetectionLoss(nn.Module):
                 s_dict["box"][b_idx, 3, gy, gx] = torch.log(
                     torch.tensor(max(1e-3, h * h_s), device=device)
                 )
+                s_dict["cls"][b_idx, :, gy, gx] = 0.0  # Reset other classes on cell
                 s_dict["cls"][b_idx, cls_id, gy, gx] = 1.0
 
         return scale_targets
@@ -150,15 +202,13 @@ class SolarDetectionLoss(nn.Module):
         total_positives = 0
 
         for pred, tgt in zip(preds, scale_targets):
-            # Split prediction channels:
-            # 0:4 -> bbox, 4:5 -> obj, 5: -> class logits
             p_box = pred[:, :4, :, :]
             p_obj = pred[:, 4:5, :, :]
             p_cls = pred[:, 5:, :, :]
 
-            # Objectness loss across all grid cells
-            self.bce_obj.pos_weight = self.bce_obj.pos_weight.to(device)
-            total_loss_obj += self.bce_obj(p_obj, tgt["obj"])
+            # Balanced Focal Objectness loss
+            scale_obj_loss = self.compute_balanced_focal_obj_loss(p_obj, tgt["obj"])
+            total_loss_obj += scale_obj_loss
 
             # Box and class loss only on cells with active targets
             mask = tgt["mask"]

@@ -48,13 +48,23 @@ def decode_predictions(
         gx = gx.unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
         gy = gy.unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
 
-        # Center decoding: (gx + sigmoid(dx)) / W_s
-        cx = (gx + torch.sigmoid(p_box[:, 0:1, :, :])) / w_s
-        cy = (gy + torch.sigmoid(p_box[:, 1:2, :, :])) / h_s
+        # Center decoding: linear clamped offset consistent with loss.py targets
+        dx = torch.clamp(p_box[:, 0:1, :, :], 0.0, 1.0)
+        dy = torch.clamp(p_box[:, 1:2, :, :], 0.0, 1.0)
+        cx = torch.clamp((gx + dx) / w_s, 0.0, 1.0)
+        cy = torch.clamp((gy + dy) / h_s, 0.0, 1.0)
 
-        # Size decoding: exp(clamp(dw)) / W_s
-        w = torch.exp(torch.clamp(p_box[:, 2:3, :, :], -5.0, 5.0)) / w_s
-        h = torch.exp(torch.clamp(p_box[:, 3:4, :, :], -5.0, 5.0)) / h_s
+        # Size decoding: exp(clamp(dw)) / W_s clamped to valid normalized bounds
+        w = torch.clamp(
+            torch.exp(torch.clamp(p_box[:, 2:3, :, :], -5.0, 5.0)) / w_s,
+            0.0,
+            1.0,
+        )
+        h = torch.clamp(
+            torch.exp(torch.clamp(p_box[:, 3:4, :, :], -5.0, 5.0)) / h_s,
+            0.0,
+            1.0,
+        )
 
         # Convert [cx, cy, w, h] to [x1, y1, x2, y2]
         x1 = torch.clamp(cx - w / 2.0, 0.0, 1.0)
