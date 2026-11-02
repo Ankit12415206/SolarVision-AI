@@ -20,21 +20,17 @@ This document catalogs the three selected datasets acquired and verified for **S
 | **Dataset Title** | Solar Panel Images Clean and Faulty Images |
 | **Source URL** | https://www.kaggle.com/datasets/pythonafroz/solar-panel-images |
 | **Publisher** | User `pythonafroz` on Kaggle (2023) |
-| **Download Status** | ⏳ **Manual Action Required** (Kaggle anonymous requests blocked by reCAPTCHA / login barrier) |
-| **Archive Location** | Expected at `data/external/dataset_a_solar_panel_images.zip` (~305 MB) |
-| **Target Directories** | `data/raw/clean/` (Clean), `data/raw/dust/` (Dusty), other defect subfolders |
-| **Total Images** | 875 images |
-| **Image Format** | JPEG |
-| **Expected Classes** | 6 classes: <br>• `Clean`: 194 images <br>• `Bird-drop`: 192 images <br>• `Dusty`: 191 images <br>• `Snow-Covered`: 124 images <br>• `Electrical-damage`: 104 images <br>• `Physical-Damage`: 70 images |
+| **Download Status** | ✅ **Downloaded & Verified** (Manually acquired archive from Kaggle) |
+| **Archive Location** | `data/external/dataset_a_solar_panel_images.zip` (304.93 MB, 319,746,451 bytes) |
+| **Extracted Path** | `data/raw/classification/` (6 class folders) and `data/raw/clean/` |
+| **Total Images** | 885 images |
+| **Image Resolution** | Varied (top resolutions: 720×960, 2048×1152, 1536×2048, 474×355) |
+| **Image Format** | JPEG (862), PNG (21), MPO (2) (100% verified, 0 corrupt files) |
+| **Class Distribution** | 6 classes (885 images total): <br>• `Bird-drop`: 207 images <br>• `Clean`: 193 images <br>• `Dusty`: 190 images <br>• `Electrical-damage`: 103 images <br>• `Physical-Damage`: 69 images <br>• `Snow-Covered`: 123 images |
 | **Annotation Format** | Directory-based classification labels |
 | **Supported Pipeline** | **Image Classification Module** (ResNet-50 / EfficientNet-B0) |
 | **License** | **Unspecified / Web collection** (Use with standard academic citation) |
-| **Limitations** | • Web-scraped imagery with varied resolutions and lighting.<br>• Class imbalance (70 to 194 per class).<br>• `Physical-Damage` reflects macroscopic fractures/broken glass, **not** electroluminescence micro-cracks. |
-
-### Manual Download Instructions
-1. Visit https://www.kaggle.com/datasets/pythonafroz/solar-panel-images while logged into Kaggle.
-2. Click **Download** (downloads `archive.zip`, ~305 MB).
-3. Place `archive.zip` at `data/external/dataset_a_solar_panel_images.zip` or extract its folders into `data/raw/`.
+| **Limitations** | • Web-scraped imagery with varied resolutions and lighting.<br>• Class imbalance (69 to 207 per class).<br>• 91 duplicate files across classes due to multi-source web collection.<br>• `Physical-Damage` reflects macroscopic fractures/broken glass, **not** electroluminescence micro-cracks. |
 
 ---
 
@@ -89,7 +85,7 @@ This document catalogs the three selected datasets acquired and verified for **S
 
 | Dataset | Modality | Images | Task | Output Target | License |
 |---|---|---|---|---|---|
-| **Dataset A** | RGB (Handheld/Drone) | 875 | Classification | 6 Classes (Clean, Dust, Damage, etc.) | Unspecified |
+| **Dataset A** | RGB (Handheld/Drone) | 885 | Classification | 6 Classes (Clean, Dust, Damage, etc.) | Unspecified |
 | **Dataset B** | RGB (Aerial Drone) | 302 | Object Detection | Bounding boxes (Dust, Bird-drop) | CC BY 4.0 |
 | **Dataset C** | EL (Electroluminescence) | 1,507 | Segmentation | Pixel-wise defect masks (Cracks, Breaks) | CC BY 4.0 |
 

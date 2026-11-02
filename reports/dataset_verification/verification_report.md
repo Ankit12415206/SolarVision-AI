@@ -4,25 +4,21 @@
 
 ## 1. Dataset A — Solar Panel Classification (Kaggle)
 
-- **Source:** https://www.kaggle.com/datasets/pythonafroz/solar-panel-images
-- **Download Status:** Manual action required
-- **Expected Total Images:** 875
+- **Present:** True
+- **Total Images:** 885
+- **Corrupt Files:** 0
+- **Duplicate Files:** 91
+- **Class Breakdown (6 classes):**
+  - `Bird-drop`: 207 images
+  - `Clean`: 193 images
+  - `Dusty`: 190 images
+  - `Electrical-damage`: 103 images
+  - `Physical-Damage`: 69 images
+  - `Snow-Covered`: 123 images
+- **Formats:** JPEG (862), PNG (21), MPO (2)
+- **Top Dimensions (sample):** 720x960 (58), 2048x1152 (23), 1536x2048 (22), 474x355 (22), 2048x1536 (22)
+- **Supports:** Image Classification pipeline (ResNet-50 / EfficientNet-B0)
 - **License:** Unspecified / Web collection
-- **Expected Class Distribution:**
-  - `Clean`: 194 images
-  - `Bird-drop`: 192 images
-  - `Dusty`: 191 images
-  - `Snow-Covered`: 124 images
-  - `Electrical-damage`: 104 images
-  - `Physical-Damage`: 70 images
-
-> ⚠️ **Manual Action Required:**
-```text
-1. Visit https://www.kaggle.com/datasets/pythonafroz/solar-panel-images
-2. Click 'Download' (archive.zip ~305 MB)
-3. Place archive.zip at 'data/external/dataset_a_solar_panel_images.zip'
-   OR extract its folders directly into data/raw/.
-```
 
 ## 2. Dataset B — Aerial Soiling Detection (Roboflow / IA-Cobotics)
 
@@ -41,7 +37,7 @@
   - `Dust` (ID 0): 473 bounding boxes
   - `bird-droppings` (ID 1): 637 bounding boxes
 - **Annotation Format:** YOLO PyTorch (normalized `class x_center y_center width height`)
-- **Supports:** Object Detection pipeline
+- **Supports:** Object Detection pipeline (YOLOv8-nano)
 - **License:** CC BY 4.0
 
 ## 3. Dataset C — MSPS EL Defect Segmentation (Zenodo / GitHub)
