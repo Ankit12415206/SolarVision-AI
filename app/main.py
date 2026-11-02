@@ -5,6 +5,14 @@ Author: SolarVision AI Team
 Created: 2026-11-02
 """
 
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 
 from app.components.styles import apply_custom_theme
