@@ -185,7 +185,7 @@ def render_inspection_page(
                         f"""
                         <div style="margin-bottom: 0.75rem;">
                             <span class="badge-demo">🔬 EVALUATOR DEMO SAMPLE</span>
-                            <span style="margin-left: 0.5rem; font-weight: 600;">{selected_sample.title}</span>
+                            <span style="margin-left: 0.5rem; font-weight: 600; color: var(--sv-text-primary);">{selected_sample.title}</span>
                         </div>
                         """,
                         unsafe_allow_html=True,

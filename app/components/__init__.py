@@ -11,10 +11,20 @@ from app.components.charts import (
     plot_defect_distribution,
     plot_modality_breakdown,
 )
-from app.components.styles import apply_custom_theme
+from app.components.styles import (
+    THEME_PALETTES,
+    apply_custom_theme,
+    render_disclaimer_notice,
+    render_kpi_card,
+    render_model_transparency,
+)
 
 __all__ = [
+    "THEME_PALETTES",
     "apply_custom_theme",
+    "render_disclaimer_notice",
+    "render_kpi_card",
+    "render_model_transparency",
     "plot_class_probabilities",
     "plot_defect_distribution",
     "plot_modality_breakdown",

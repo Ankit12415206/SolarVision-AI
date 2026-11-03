@@ -22,6 +22,18 @@ THEME_PALETTES: Dict[str, Dict[str, str]] = {
         "text_muted": "#64748B",
         "accent_blue": "#3B82F6",
         "accent_teal": "#06B6D4",
+        "input_bg": "#131B2E",
+        "input_border": "#334155",
+        "input_text": "#F8FAFC",
+        "input_placeholder": "#64748B",
+        "button_secondary_bg": "#1E293B",
+        "button_secondary_border": "#334155",
+        "button_secondary_text": "#F8FAFC",
+        "table_header_bg": "#131B2E",
+        "table_header_text": "#F8FAFC",
+        "table_row_bg": "#1E293B",
+        "table_row_alt": "#172033",
+        "table_text": "#F8FAFC",
         "badge_clean_bg": "#14532D",
         "badge_clean_text": "#86EFAC",
         "badge_defect_bg": "#7F1D1D",
@@ -37,13 +49,25 @@ THEME_PALETTES: Dict[str, Dict[str, str]] = {
         "bg_surface": "#FFFFFF",
         "bg_card": "#FFFFFF",
         "bg_card_hover": "#F1F5F9",
-        "border_color": "#E2E8F0",
-        "border_subtle": "#F1F5F9",
+        "border_color": "#CBD5E1",
+        "border_subtle": "#E2E8F0",
         "text_primary": "#0F172A",
-        "text_secondary": "#475569",
-        "text_muted": "#94A3B8",
+        "text_secondary": "#334155",
+        "text_muted": "#64748B",
         "accent_blue": "#2563EB",
         "accent_teal": "#0891B2",
+        "input_bg": "#FFFFFF",
+        "input_border": "#CBD5E1",
+        "input_text": "#0F172A",
+        "input_placeholder": "#94A3B8",
+        "button_secondary_bg": "#FFFFFF",
+        "button_secondary_border": "#CBD5E1",
+        "button_secondary_text": "#0F172A",
+        "table_header_bg": "#F1F5F9",
+        "table_header_text": "#0F172A",
+        "table_row_bg": "#FFFFFF",
+        "table_row_alt": "#F8FAFC",
+        "table_text": "#0F172A",
         "badge_clean_bg": "#DCFCE7",
         "badge_clean_text": "#15803D",
         "badge_defect_bg": "#FEE2E2",
@@ -52,7 +76,7 @@ THEME_PALETTES: Dict[str, Dict[str, str]] = {
         "badge_warning_text": "#B45309",
         "badge_info_bg": "#DBEAFE",
         "badge_info_text": "#1D4ED8",
-        "card_shadow": "0 2px 6px rgba(0, 0, 0, 0.06)",
+        "card_shadow": "0 1px 4px rgba(0, 0, 0, 0.08)",
     },
 }
 
@@ -69,20 +93,28 @@ def apply_custom_theme(theme: str = "dark") -> None:
     css = f"""
     <style>
     /* CSS Variables */
-    :root {{
+    :root, .stApp {{
         --sv-bg-main: {p["bg_main"]};
         --sv-bg-surface: {p["bg_surface"]};
         --sv-bg-card: {p["bg_card"]};
+        --sv-bg-card-hover: {p["bg_card_hover"]};
         --sv-border: {p["border_color"]};
+        --sv-border-subtle: {p["border_subtle"]};
         --sv-text-primary: {p["text_primary"]};
         --sv-text-secondary: {p["text_secondary"]};
+        --sv-text-muted: {p["text_muted"]};
         --sv-accent: {p["accent_blue"]};
+        --sv-accent-teal: {p["accent_teal"]};
+        --text-color: {p["text_primary"]};
+        --background-color: {p["bg_main"]};
+        --secondary-background-color: {p["bg_surface"]};
+        --primary-color: {p["accent_blue"]};
     }}
 
     /* Global layout container */
     .stApp {{
-        background-color: {p["bg_main"]};
-        color: {p["text_primary"]};
+        background-color: {p["bg_main"]} !important;
+        color: {p["text_primary"]} !important;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }}
 
@@ -92,15 +124,80 @@ def apply_custom_theme(theme: str = "dark") -> None:
         max-width: 1240px;
     }}
 
+    /* Typography & Core Text */
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {{
+        color: {p["text_primary"]} !important;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }}
+
+    .stApp p, .stApp .stMarkdown p {{
+        color: {p["text_primary"]} !important;
+        line-height: 1.6;
+    }}
+
+    .stApp strong, .stApp .stMarkdown strong {{
+        color: {p["text_primary"]} !important;
+    }}
+
+    .stApp em, .stApp .stMarkdown em {{
+        color: {p["text_secondary"]};
+    }}
+
+    .stApp div[data-testid="stCaptionContainer"] p,
+    .stApp .stCaption,
+    .stApp small {{
+        color: {p["text_secondary"]} !important;
+    }}
+
+    .stApp hr {{
+        border-color: {p["border_color"]} !important;
+        margin: 1.25rem 0;
+    }}
+
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {{
-        background-color: {p["bg_surface"]};
+        background-color: {p["bg_surface"]} !important;
         border-right: 1px solid {p["border_color"]};
     }}
 
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4 {{
+        color: {p["text_primary"]} !important;
+    }}
+
+    section[data-testid="stSidebar"] p {{
+        color: {p["text_primary"]} !important;
+    }}
+
+    section[data-testid="stSidebar"] div[data-testid="stCaptionContainer"] p,
+    section[data-testid="stSidebar"] small {{
+        color: {p["text_secondary"]} !important;
+    }}
+
     section[data-testid="stSidebar"] hr {{
+        border-color: {p["border_color"]} !important;
         margin: 1rem 0;
-        border-color: {p["border_color"]};
+    }}
+
+    /* Radio Controls (Navigation Menu & Theme Selector) */
+    div[data-testid="stRadio"] label {{
+        color: {p["text_primary"]} !important;
+    }}
+
+    div[data-testid="stRadio"] label p,
+    div[data-testid="stRadio"] label span {{
+        color: {p["text_primary"]} !important;
+        font-size: 0.92rem;
+    }}
+
+    div[data-testid="stRadio"] label:has(input:checked) p,
+    div[data-testid="stRadio"] label:has(input:checked) span,
+    div[data-testid="stRadio"] div[role="radiogroup"] label[data-checked="true"] p {{
+        color: {p["accent_blue"]} !important;
+        font-weight: 700 !important;
     }}
 
     /* Top Brand Bar */
@@ -203,13 +300,13 @@ def apply_custom_theme(theme: str = "dark") -> None:
 
     /* Model Transparency Card */
     .model-info-box {{
-        background-color: {p["bg_surface"]};
+        background-color: {p["bg_card"]};
         border: 1px solid {p["border_color"]};
         border-radius: 6px;
         padding: 0.85rem 1.1rem;
         margin: 0.8rem 0;
         font-size: 0.84rem;
-        color: {p["text_secondary"]};
+        box-shadow: {p["card_shadow"]};
     }}
 
     .model-info-row {{
@@ -242,6 +339,7 @@ def apply_custom_theme(theme: str = "dark") -> None:
     .badge-clean {{
         background-color: {p["badge_clean_bg"]};
         color: {p["badge_clean_text"]};
+        border: 1px solid {p["badge_clean_text"]};
         padding: 0.2rem 0.65rem;
         border-radius: 4px;
         font-size: 0.8rem;
@@ -253,6 +351,7 @@ def apply_custom_theme(theme: str = "dark") -> None:
     .badge-defect {{
         background-color: {p["badge_defect_bg"]};
         color: {p["badge_defect_text"]};
+        border: 1px solid {p["badge_defect_text"]};
         padding: 0.2rem 0.65rem;
         border-radius: 4px;
         font-size: 0.8rem;
@@ -264,6 +363,7 @@ def apply_custom_theme(theme: str = "dark") -> None:
     .badge-warning {{
         background-color: {p["badge_warning_bg"]};
         color: {p["badge_warning_text"]};
+        border: 1px solid {p["badge_warning_text"]};
         padding: 0.2rem 0.65rem;
         border-radius: 4px;
         font-size: 0.8rem;
@@ -275,6 +375,7 @@ def apply_custom_theme(theme: str = "dark") -> None:
     .badge-info {{
         background-color: {p["badge_info_bg"]};
         color: {p["badge_info_text"]};
+        border: 1px solid {p["badge_info_text"]};
         padding: 0.2rem 0.65rem;
         border-radius: 4px;
         font-size: 0.8rem;
@@ -297,13 +398,19 @@ def apply_custom_theme(theme: str = "dark") -> None:
 
     /* Disclaimer box */
     .disclaimer-box {{
-        background-color: {p["bg_surface"]};
-        border-left: 3px solid {p["accent_blue"]};
+        background-color: {p["bg_card"]};
+        border: 1px solid {p["border_color"]};
+        border-left: 4px solid {p["accent_blue"]};
         border-radius: 0 6px 6px 0;
-        padding: 0.75rem 1rem;
-        font-size: 0.8rem;
+        padding: 0.85rem 1.15rem;
+        font-size: 0.82rem;
         color: {p["text_secondary"]};
         margin-top: 1.5rem;
+        box-shadow: {p["card_shadow"]};
+    }}
+
+    .disclaimer-box strong {{
+        color: {p["text_primary"]} !important;
     }}
 
     /* Empty state card */
@@ -330,29 +437,249 @@ def apply_custom_theme(theme: str = "dark") -> None:
         margin: 0 auto 1.25rem auto;
     }}
 
-    /* Streamlit native widget contrast tuning */
+    /* Expanders */
+    div[data-testid="stExpander"] {{
+        background-color: {p["bg_card"]} !important;
+        border: 1px solid {p["border_color"]} !important;
+        border-radius: 8px;
+        box-shadow: {p["card_shadow"]};
+        margin: 0.75rem 0;
+    }}
+
+    div[data-testid="stExpander"] details {{
+        background-color: {p["bg_card"]} !important;
+        border-radius: 8px;
+    }}
+
+    div[data-testid="stExpander"] summary {{
+        background-color: {p["bg_card"]} !important;
+        color: {p["text_primary"]} !important;
+        border-radius: 8px;
+        padding: 0.6rem 0.85rem;
+    }}
+
+    div[data-testid="stExpander"] summary p,
+    div[data-testid="stExpander"] summary span {{
+        color: {p["text_primary"]} !important;
+        font-weight: 600;
+    }}
+
+    div[data-testid="stExpander"] summary svg {{
+        fill: {p["text_secondary"]} !important;
+        color: {p["text_secondary"]} !important;
+    }}
+
+    div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {{
+        background-color: {p["bg_card"]} !important;
+        border-top: 1px solid {p["border_color"]};
+        padding: 1rem;
+    }}
+
+    div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] p {{
+        color: {p["text_secondary"]} !important;
+    }}
+
+    div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] strong {{
+        color: {p["text_primary"]} !important;
+    }}
+
+    div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] code {{
+        background-color: {p["bg_surface"]} !important;
+        color: {p["accent_blue"]} !important;
+    }}
+
+    /* Streamlit Metrics */
+    div[data-testid="stMetric"] {{
+        background-color: {p["bg_card"]} !important;
+        border: 1px solid {p["border_color"]} !important;
+        border-radius: 8px;
+        padding: 0.85rem 1rem;
+        box-shadow: {p["card_shadow"]};
+    }}
+
     div[data-testid="stMetricValue"] {{
-        color: {p["text_primary"]};
+        color: {p["text_primary"]} !important;
         font-weight: 700;
     }}
 
-    div[data-testid="stMetricLabel"] {{
-        color: {p["text_secondary"]};
-        font-size: 0.85rem;
+    div[data-testid="stMetricValue"] > div {{
+        color: {p["text_primary"]} !important;
     }}
 
-    /* Button refinement */
-    div.stButton > button {{
+    div[data-testid="stMetricLabel"] p,
+    div[data-testid="stMetricLabel"] label {{
+        color: {p["text_secondary"]} !important;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }}
+
+    /* Form Inputs & Selectors */
+    div[data-testid="stWidgetLabel"] label,
+    div[data-testid="stWidgetLabel"] label p,
+    div[data-testid="stWidgetLabel"] label span {{
+        color: {p["text_primary"]} !important;
+        font-weight: 600;
+        font-size: 0.88rem;
+    }}
+
+    div[data-baseweb="input"] {{
+        background-color: {p["input_bg"]} !important;
+        border: 1px solid {p["input_border"]} !important;
+        border-radius: 6px;
+    }}
+
+    div[data-baseweb="input"] input {{
+        background-color: transparent !important;
+        color: {p["input_text"]} !important;
+    }}
+
+    div[data-baseweb="input"] input::placeholder {{
+        color: {p["input_placeholder"]} !important;
+    }}
+
+    div[data-baseweb="select"] > div {{
+        background-color: {p["input_bg"]} !important;
+        border: 1px solid {p["input_border"]} !important;
+        color: {p["input_text"]} !important;
+        border-radius: 6px;
+    }}
+
+    div[data-baseweb="select"] span {{
+        color: {p["input_text"]} !important;
+    }}
+
+    div[data-baseweb="select"] svg {{
+        fill: {p["text_secondary"]} !important;
+    }}
+
+    ul[data-baseweb="menu"] {{
+        background-color: {p["bg_card"]} !important;
+        border: 1px solid {p["border_color"]} !important;
+    }}
+
+    li[data-baseweb="menu-item"] {{
+        background-color: {p["bg_card"]} !important;
+        color: {p["text_primary"]} !important;
+    }}
+
+    li[data-baseweb="menu-item"]:hover {{
+        background-color: {p["bg_card_hover"]} !important;
+    }}
+
+    /* File Uploader */
+    div[data-testid="stFileUploader"] section {{
+        background-color: {p["bg_card"]} !important;
+        border: 1px dashed {p["border_color"]} !important;
+        border-radius: 8px;
+    }}
+
+    div[data-testid="stFileUploader"] section p,
+    div[data-testid="stFileUploader"] section span,
+    div[data-testid="stFileUploader"] section small {{
+        color: {p["text_secondary"]} !important;
+    }}
+
+    /* Buttons */
+    div.stButton > button,
+    div.stDownloadButton > button {{
         border-radius: 6px;
         font-weight: 600;
         font-size: 0.9rem;
         transition: all 0.15s ease;
     }}
 
-    div.stDownloadButton > button {{
+    div.stButton > button[kind="primary"],
+    div.stDownloadButton > button[kind="primary"] {{
+        background-color: {p["accent_blue"]} !important;
+        color: #FFFFFF !important;
+        border: 1px solid {p["accent_blue"]} !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }}
+
+    div.stButton > button[kind="primary"]:hover,
+    div.stDownloadButton > button[kind="primary"]:hover {{
+        filter: brightness(1.1);
+    }}
+
+    div.stButton > button:not([kind="primary"]),
+    div.stDownloadButton > button:not([kind="primary"]) {{
+        background-color: {p["button_secondary_bg"]} !important;
+        color: {p["button_secondary_text"]} !important;
+        border: 1px solid {p["button_secondary_border"]} !important;
+        box-shadow: {p["card_shadow"]};
+    }}
+
+    div.stButton > button:not([kind="primary"]):hover,
+    div.stDownloadButton > button:not([kind="primary"]):hover {{
+        background-color: {p["bg_card_hover"]} !important;
+        border-color: {p["accent_blue"]} !important;
+        color: {p["accent_blue"]} !important;
+    }}
+
+    /* Code & JSON display */
+    code {{
+        background-color: {p["bg_surface"]} !important;
+        color: {p["accent_blue"]} !important;
+        border: 1px solid {p["border_color"]};
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.88em;
+    }}
+
+    div[data-testid="stCodeBlock"] {{
+        background-color: {p["bg_surface"]} !important;
+        border: 1px solid {p["border_color"]} !important;
         border-radius: 6px;
+    }}
+
+    div[data-testid="stCodeBlock"] pre {{
+        color: {p["text_primary"]} !important;
+    }}
+
+    div[data-testid="stJson"] {{
+        background-color: {p["bg_surface"]} !important;
+        border: 1px solid {p["border_color"]} !important;
+        border-radius: 6px;
+        padding: 0.75rem;
+    }}
+
+    /* DataFrames & Tables */
+    div[data-testid="stDataFrame"] {{
+        border: 1px solid {p["border_color"]} !important;
+        border-radius: 6px;
+    }}
+
+    table {{
+        color: {p["text_primary"]} !important;
+        background-color: {p["bg_card"]} !important;
+        border-collapse: collapse;
+    }}
+
+    th {{
+        background-color: {p["table_header_bg"]} !important;
+        color: {p["table_header_text"]} !important;
+        border-bottom: 2px solid {p["border_color"]} !important;
         font-weight: 600;
-        font-size: 0.9rem;
+    }}
+
+    td {{
+        border-bottom: 1px solid {p["border_color"]} !important;
+        color: {p["table_text"]} !important;
+    }}
+
+    /* Alerts */
+    div[data-testid="stAlert"] {{
+        border-radius: 6px;
+    }}
+
+    div[data-testid="stAlert"] p {{
+        color: {p["text_primary"]} !important;
+    }}
+
+    div[data-testid="stAlert"] strong {{
+        color: {p["text_primary"]} !important;
     }}
     </style>
     """

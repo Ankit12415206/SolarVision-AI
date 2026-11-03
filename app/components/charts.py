@@ -35,6 +35,7 @@ def _get_theme_styles(theme: str) -> Dict[str, str]:
             "paper_bgcolor": "#FFFFFF",
             "plot_bgcolor": "#F8FAFC",
             "font_color": "#0F172A",
+            "font_secondary": "#334155",
             "grid_color": "#E2E8F0",
             "border_color": "#CBD5E1",
         }
@@ -43,6 +44,7 @@ def _get_theme_styles(theme: str) -> Dict[str, str]:
         "paper_bgcolor": "#1E293B",
         "plot_bgcolor": "#0F172A",
         "font_color": "#F8FAFC",
+        "font_secondary": "#94A3B8",
         "grid_color": "#334155",
         "border_color": "#475569",
     }
@@ -83,23 +85,33 @@ def plot_class_probabilities(
             marker=dict(color=colors, line=dict(color=ts["border_color"], width=1)),
             text=[f"{v:.1f}%" for v in values],
             textposition="auto",
+            insidetextfont=dict(color="#FFFFFF", size=11),
+            outsidetextfont=dict(color=ts["font_color"], size=11),
         )
     )
 
     fig.update_layout(
         template=ts["template"],
+        font=dict(
+            color=ts["font_color"],
+            family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        ),
         title=dict(
             text="Class Probability Distribution",
             font=dict(color=ts["font_color"], size=13),
         ),
         xaxis=dict(
-            title="Probability (%)",
+            title=dict(text="Probability (%)", font=dict(color=ts["font_color"])),
             range=[0, 100],
             showgrid=True,
             gridcolor=ts["grid_color"],
             color=ts["font_color"],
+            tickfont=dict(color=ts["font_color"]),
         ),
-        yaxis=dict(color=ts["font_color"]),
+        yaxis=dict(
+            color=ts["font_color"],
+            tickfont=dict(color=ts["font_color"]),
+        ),
         plot_bgcolor=ts["plot_bgcolor"],
         paper_bgcolor=ts["paper_bgcolor"],
         margin=dict(l=10, r=20, t=35, b=20),
@@ -138,12 +150,17 @@ def plot_defect_distribution(
                     line=dict(color=ts["border_color"], width=1),
                 ),
                 textinfo="label+percent",
+                insidetextfont=dict(color="#FFFFFF", size=11),
             )
         ]
     )
 
     fig.update_layout(
         template=ts["template"],
+        font=dict(
+            color=ts["font_color"],
+            family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        ),
         title=dict(
             text="Panel Health Ratio",
             font=dict(color=ts["font_color"], size=13),
@@ -188,20 +205,30 @@ def plot_modality_breakdown(
             ),
             text=counts,
             textposition="auto",
+            insidetextfont=dict(color="#FFFFFF", size=11),
+            outsidetextfont=dict(color=ts["font_color"], size=11),
         )
     )
 
     fig.update_layout(
         template=ts["template"],
+        font=dict(
+            color=ts["font_color"],
+            family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        ),
         title=dict(
             text="Inspections by Modality",
             font=dict(color=ts["font_color"], size=13),
         ),
-        xaxis=dict(color=ts["font_color"]),
+        xaxis=dict(
+            color=ts["font_color"],
+            tickfont=dict(color=ts["font_color"]),
+        ),
         yaxis=dict(
-            title="Inspections",
+            title=dict(text="Inspections", font=dict(color=ts["font_color"])),
             color=ts["font_color"],
             gridcolor=ts["grid_color"],
+            tickfont=dict(color=ts["font_color"]),
         ),
         plot_bgcolor=ts["plot_bgcolor"],
         paper_bgcolor=ts["paper_bgcolor"],
@@ -247,15 +274,24 @@ def plot_daily_trend(analytics: Dict[str, Any], theme: str = "dark") -> go.Figur
 
     fig.update_layout(
         template=ts["template"],
+        font=dict(
+            color=ts["font_color"],
+            family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        ),
         title=dict(
             text="Inspection Volume Trend",
             font=dict(color=ts["font_color"], size=13),
         ),
-        xaxis=dict(title="Date", color=ts["font_color"]),
+        xaxis=dict(
+            title=dict(text="Date", font=dict(color=ts["font_color"])),
+            color=ts["font_color"],
+            tickfont=dict(color=ts["font_color"]),
+        ),
         yaxis=dict(
-            title="Inspections",
+            title=dict(text="Inspections", font=dict(color=ts["font_color"])),
             color=ts["font_color"],
             gridcolor=ts["grid_color"],
+            tickfont=dict(color=ts["font_color"]),
         ),
         plot_bgcolor=ts["plot_bgcolor"],
         paper_bgcolor=ts["paper_bgcolor"],
