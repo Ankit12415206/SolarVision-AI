@@ -15,8 +15,10 @@ from src.utils.model_utils import (
     save_checkpoint,
 )
 from src.utils.report_generator import (
+    build_pdf_story,
     generate_inspection_pdf,
     generate_inspection_pdf_bytes,
+    get_table_header_style,
 )
 
 __all__ = [
@@ -30,6 +32,8 @@ __all__ = [
     "get_model_summary",
     "load_checkpoint",
     "save_checkpoint",
+    "build_pdf_story",
     "generate_inspection_pdf",
     "generate_inspection_pdf_bytes",
+    "get_table_header_style",
 ]

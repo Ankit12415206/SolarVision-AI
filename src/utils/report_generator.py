@@ -30,48 +30,76 @@ from reportlab.platypus import (
 from src.inference.types import InferenceResult, InspectionType
 
 
+def get_table_header_style(
+    parent_style: Optional[ParagraphStyle] = None,
+) -> ParagraphStyle:
+    """Return dedicated white bold paragraph style for PDF table headers.
+
+    Args:
+        parent_style: Optional parent ParagraphStyle.
+
+    Returns:
+        ParagraphStyle: Configured white bold style with 8.5 pt font size.
+    """
+    return ParagraphStyle(
+        "TableHeaderWhite",
+        parent=parent_style,
+        fontName="Helvetica-Bold",
+        fontSize=8.5,
+        leading=11,
+        textColor=colors.HexColor("#FFFFFF"),
+    )
+
+
 def _pil_to_reportlab_image(
-    img: PILImage.Image,
-    max_width: float = 460,
-    max_height: float = 240,
-) -> RLImage:
+    img: Optional[PILImage.Image],
+    max_width: float = 520,
+    max_height: float = 210,
+) -> Optional[RLImage]:
     """Convert a PIL Image into an in-memory ReportLab flowable image preserving aspect ratio.
 
     Args:
-        img: Input PIL Image.
-        max_width: Maximum allowed width in points. Defaults to 460.
-        max_height: Maximum allowed height in points. Defaults to 240.
+        img: Input PIL Image or None.
+        max_width: Maximum allowed width in points. Defaults to 520.
+        max_height: Maximum allowed height in points. Defaults to 210.
 
     Returns:
-        RLImage: ReportLab image flowable.
+        Optional[RLImage]: ReportLab image flowable, or None if invalid or conversion fails.
     """
-    buf = io.BytesIO()
-    # Save as PNG
-    img.save(buf, format="PNG")
-    buf.seek(0)
+    if img is None:
+        return None
+    try:
+        # Convert image to RGB if not already in RGB/RGBA/L
+        img_converted = img.convert("RGB") if img.mode not in ("RGB", "L") else img
+        orig_w, orig_h = img_converted.size
+        if orig_w <= 0 or orig_h <= 0:
+            return None
 
-    orig_w, orig_h = img.size
-    aspect = orig_h / orig_w if orig_w > 0 else 1.0
+        aspect = orig_h / orig_w
+        target_w = min(max_width, float(orig_w))
+        target_h = target_w * aspect
 
-    target_w = min(max_width, float(orig_w))
-    target_h = target_w * aspect
+        if target_h > max_height:
+            target_h = max_height
+            target_w = target_h / aspect
 
-    if target_h > max_height:
-        target_h = max_height
-        target_w = target_h / aspect
+        buf = io.BytesIO()
+        img_converted.save(buf, format="PNG")
+        buf.seek(0)
+        return RLImage(buf, width=target_w, height=target_h)
+    except Exception:
+        return None
 
-    return RLImage(buf, width=target_w, height=target_h)
 
-
-def generate_inspection_pdf_bytes(
+def build_pdf_story(
     result: InferenceResult,
     inspection_id: Optional[Union[int, str]] = None,
     image_name: Optional[str] = None,
     original_image: Optional[PILImage.Image] = None,
     notes: Optional[str] = None,
     timestamp: Optional[str] = None,
-) -> bytes:
-    """Generate PDF inspection report and return bytes.
+) -> List[Any]:
+    """Build the list of ReportLab flowable story elements for an inspection report.
 
     Args:
         result: The InferenceResult to generate the report for.
@@ -82,17 +110,8 @@ def generate_inspection_pdf_bytes(
         timestamp: Optional ISO timestamp. Defaults to current UTC time.
 
     Returns:
-        bytes: Raw PDF bytes.
+        List[Any]: List of ReportLab flowable elements.
     """
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buf,
-        pagesize=letter,
-        leftMargin=36,
-        rightMargin=36,
-        topMargin=36,
-        bottomMargin=36,
-    )
     story: List[Any] = []
     styles = getSampleStyleSheet()
 
@@ -131,6 +150,7 @@ def generate_inspection_pdf_bytes(
         leading=11,
         textColor=colors.HexColor("#334155"),
     )
+    table_header_style = get_table_header_style(styles["Normal"])
     disclaimer_style = ParagraphStyle(
         "DisclaimerText",
         parent=styles["Normal"],
@@ -172,22 +192,14 @@ def generate_inspection_pdf_bytes(
         )
     )
 
-    # Metadata & Results Summary Table
+    # Determine defect status
     has_defect = False
-    finding_summary = "Normal"
     if result.inspection_type == InspectionType.CLASSIFICATION:
-        finding_summary = (
-            f"{result.predicted_class} ({(result.confidence or 0)*100:.1f}%)"
-        )
         has_defect = (result.predicted_class or "").lower() != "clean"
     elif result.inspection_type == InspectionType.DETECTION:
-        num = len(result.boxes) if result.boxes else 0
-        finding_summary = f"{num} detected objects"
-        has_defect = num > 0
+        has_defect = bool(result.boxes and len(result.boxes) > 0)
     elif result.inspection_type == InspectionType.SEGMENTATION:
-        pct = (result.defect_ratio or 0.0) * 100.0
-        finding_summary = f"{pct:.3f}% active defect area"
-        has_defect = pct > 0
+        has_defect = bool(result.defect_ratio and result.defect_ratio > 0)
 
     status_tag = "DEFECT / SOILED" if has_defect else "CLEAN / NORMAL"
     status_color = (
@@ -222,16 +234,58 @@ def generate_inspection_pdf_bytes(
                 body_style,
             ),
         ],
-        [
-            Paragraph("<b>Inspection Finding:</b>", body_style),
-            Paragraph(f"<b>{finding_summary}</b>", body_style),
-            Paragraph("<b>Condition Status:</b>", body_style),
-            Paragraph(
-                f"<font color='{status_color.hexval()}'><b>{status_tag}</b></font>",
-                body_style,
-            ),
-        ],
     ]
+
+    if result.inspection_type == InspectionType.CLASSIFICATION:
+        conf_pct = (result.confidence or 0.0) * 100.0
+        meta_table_data.extend(
+            [
+                [
+                    Paragraph("<b>Predicted Finding:</b>", body_style),
+                    Paragraph(f"<b>{result.predicted_class}</b>", body_style),
+                    Paragraph("<b>Model Confidence:</b>", body_style),
+                    Paragraph(f"<b>{conf_pct:.1f}%</b>", body_style),
+                ],
+                [
+                    Paragraph("<b>Condition Status:</b>", body_style),
+                    Paragraph(
+                        f"<font color='{status_color.hexval()}'><b>{status_tag}</b></font>",
+                        body_style,
+                    ),
+                    Paragraph("<b>Confidence Basis:</b>", body_style),
+                    Paragraph(
+                        "Categorical class score (screening aid, not physical certainty)",
+                        body_style,
+                    ),
+                ],
+            ]
+        )
+    elif result.inspection_type == InspectionType.DETECTION:
+        num = len(result.boxes) if result.boxes else 0
+        meta_table_data.append(
+            [
+                Paragraph("<b>Inspection Finding:</b>", body_style),
+                Paragraph(f"<b>{num} detected object(s)</b>", body_style),
+                Paragraph("<b>Condition Status:</b>", body_style),
+                Paragraph(
+                    f"<font color='{status_color.hexval()}'><b>{status_tag}</b></font>",
+                    body_style,
+                ),
+            ]
+        )
+    elif result.inspection_type == InspectionType.SEGMENTATION:
+        pct = (result.defect_ratio or 0.0) * 100.0
+        meta_table_data.append(
+            [
+                Paragraph("<b>Inspection Finding:</b>", body_style),
+                Paragraph(f"<b>{pct:.4f}% active defect area</b>", body_style),
+                Paragraph("<b>Condition Status:</b>", body_style),
+                Paragraph(
+                    f"<font color='{status_color.hexval()}'><b>{status_tag}</b></font>",
+                    body_style,
+                ),
+            ]
+        )
 
     meta_table = Table(meta_table_data, colWidths=[110, 160, 110, 160])
     meta_table.setStyle(
@@ -257,12 +311,69 @@ def generate_inspection_pdf_bytes(
     # Inspection Visuals Section
     story.append(Paragraph("Inspection Visualizations", section_style))
 
-    # Include Annotated Image
-    if result.annotated_image is not None:
-        rl_annotated = _pil_to_reportlab_image(
-            result.annotated_image, max_width=520, max_height=200
+    # Resolve display image:
+    # 1. Prefer annotated overlay image (with bounding boxes, mask composite, or condition banner)
+    # 2. Fall back to original input image if provided
+    # 3. Fall back to loading from disk if source path in metadata exists
+    display_image: Optional[PILImage.Image] = None
+    caption_text = "Inspection Visual Asset"
+
+    if result.annotated_image is not None and isinstance(result.annotated_image, PILImage.Image):
+        display_image = result.annotated_image
+        caption_text = "Diagnostic Visualization Overlay (Model Annotated)"
+    elif original_image is not None and isinstance(original_image, PILImage.Image):
+        display_image = original_image
+        caption_text = "Original Inspection Asset (Unannotated Input)"
+    elif result.image_metadata and result.image_metadata.get("source"):
+        src_path = Path(result.image_metadata["source"])
+        if src_path.is_file():
+            try:
+                display_image = PILImage.open(src_path).copy()
+                caption_text = f"Inspection Asset ({src_path.name})"
+            except Exception:
+                display_image = None
+
+    rl_img: Optional[RLImage] = None
+    if display_image is not None:
+        rl_img = _pil_to_reportlab_image(display_image, max_width=520, max_height=210)
+
+    if rl_img is not None:
+        story.append(rl_img)
+        story.append(Spacer(1, 3))
+        story.append(
+            Paragraph(
+                f"<i>Figure 1: {caption_text}</i>",
+                disclaimer_style,
+            )
         )
-        story.append(rl_annotated)
+        story.append(Spacer(1, 8))
+    else:
+        # Professional fallback notice instead of a blank colored rectangle
+        empty_box_data = [
+            [
+                Paragraph(
+                    "<b>Inspection Image Unavailable</b><br/>"
+                    "The visual asset or annotated overlay was not retained in active memory for this report. "
+                    "All diagnostic telemetry, classification details, bounding boxes, and numeric metrics remain fully recorded below.",
+                    disclaimer_style,
+                )
+            ]
+        ]
+        empty_box = Table(empty_box_data, colWidths=[520])
+        empty_box.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F8FAFC")),
+                    ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
+                    ("TOPPADDING", (0, 0), (-1, -1), 10),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 12),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 12),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ]
+            )
+        )
+        story.append(empty_box)
         story.append(Spacer(1, 8))
 
     # Modality Specific Data Breakdown
@@ -271,9 +382,9 @@ def generate_inspection_pdf_bytes(
             story.append(Paragraph("Class Probability Breakdown", section_style))
             prob_rows: List[List[Any]] = [
                 [
-                    Paragraph("<b>Class Name</b>", body_style),
-                    Paragraph("<b>Probability (%)</b>", body_style),
-                    Paragraph("<b>Indicator</b>", body_style),
+                    Paragraph("Class Name", table_header_style),
+                    Paragraph("Probability (%)", table_header_style),
+                    Paragraph("Indicator", table_header_style),
                 ]
             ]
             sorted_probs = sorted(
@@ -295,7 +406,7 @@ def generate_inspection_pdf_bytes(
                 TableStyle(
                     [
                         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F172A")),
-                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#FFFFFF")),
                         ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
                         ("TOPPADDING", (0, 0), (-1, -1), 3),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
@@ -309,11 +420,12 @@ def generate_inspection_pdf_bytes(
         if result.boxes:
             det_rows: List[List[Any]] = [
                 [
-                    Paragraph("<b>#</b>", body_style),
-                    Paragraph("<b>Class</b>", body_style),
-                    Paragraph("<b>Confidence</b>", body_style),
+                    Paragraph("#", table_header_style),
+                    Paragraph("Class", table_header_style),
+                    Paragraph("Confidence", table_header_style),
                     Paragraph(
-                        "<b>Normalized Bounding Box [x1, y1, x2, y2]</b>", body_style
+                        "Normalized Bounding Box [x1, y1, x2, y2]",
+                        table_header_style,
                     ),
                 ]
             ]
@@ -332,6 +444,7 @@ def generate_inspection_pdf_bytes(
                 TableStyle(
                     [
                         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F172A")),
+                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#FFFFFF")),
                         ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
                         ("TOPPADDING", (0, 0), (-1, -1), 3),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
@@ -360,8 +473,8 @@ def generate_inspection_pdf_bytes(
         )
         seg_rows: List[List[Any]] = [
             [
-                Paragraph("<b>Metric</b>", body_style),
-                Paragraph("<b>Value / Details</b>", body_style),
+                Paragraph("Metric", table_header_style),
+                Paragraph("Value / Details", table_header_style),
             ],
             [
                 Paragraph("Defect Area Ratio", body_style),
@@ -387,6 +500,7 @@ def generate_inspection_pdf_bytes(
             TableStyle(
                 [
                     ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F172A")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#FFFFFF")),
                     ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
                     ("TOPPADDING", (0, 0), (-1, -1), 3),
                     ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
@@ -408,7 +522,9 @@ def generate_inspection_pdf_bytes(
         Paragraph(
             "<b>NOTICE & ACADEMIC DISCLAIMER:</b> This automated inspection report was generated by SolarVision AI, "
             "an academic research prototype. Automated deep learning predictions (classification, detection bounding boxes, "
-            "and segmentation masks) are indicative screening aids only. They must not be relied upon as the sole basis for "
+            "and segmentation masks) are indicative screening aids only. Classification model confidence reflects relative softmax certainty "
+            "across discrete categorical classes and does not represent actual inspection certainty or the probability of a module being "
+            "physically defect-free. Predictions must not be relied upon as the sole basis for "
             "commercial maintenance, insurance claims, or module warranty decisions without secondary on-site verification "
             "by a certified photovoltaic engineer or qualified solar inspection technician.",
             disclaimer_style,
@@ -416,6 +532,47 @@ def generate_inspection_pdf_bytes(
     ]
     story.append(KeepTogether(disclaimer_block))
 
+    return story
+
+
+def generate_inspection_pdf_bytes(
+    result: InferenceResult,
+    inspection_id: Optional[Union[int, str]] = None,
+    image_name: Optional[str] = None,
+    original_image: Optional[PILImage.Image] = None,
+    notes: Optional[str] = None,
+    timestamp: Optional[str] = None,
+) -> bytes:
+    """Generate PDF inspection report and return bytes.
+
+    Args:
+        result: The InferenceResult to generate the report for.
+        inspection_id: Optional database record primary key ID.
+        image_name: Display filename of the inspected image.
+        original_image: Optional PIL Image of original input.
+        notes: Optional operator inspection notes.
+        timestamp: Optional ISO timestamp. Defaults to current UTC time.
+
+    Returns:
+        bytes: Raw PDF bytes.
+    """
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=letter,
+        leftMargin=36,
+        rightMargin=36,
+        topMargin=36,
+        bottomMargin=36,
+    )
+    story = build_pdf_story(
+        result=result,
+        inspection_id=inspection_id,
+        image_name=image_name,
+        original_image=original_image,
+        notes=notes,
+        timestamp=timestamp,
+    )
     doc.build(story)
     buf.seek(0)
     return buf.getvalue()
